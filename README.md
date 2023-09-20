@@ -1,6 +1,6 @@
-# DevCamper API
+# KCDBD API
 
-> Backend API for DevCamper application, which is a bootcamp directory website
+> Backend API for Kubernetes Community Day Bangladesh
 
 ## Usage
 
@@ -24,7 +24,7 @@ npm start
 
 ## Database Seeder
 
-To seed the database with users, bootcamps, courses and reviews with data from the "\_data" folder, run
+To seed the database with users, categories, jobs and reviews with data from the "\_data" folder, run
 
 ```
 # Destroy all data
@@ -36,9 +36,9 @@ node seeder -i
 
 ## Demo
 
-The API is live at [api-dev-camper.herokuapp.com](https://api-dev-camper.herokuapp.com)
+The API is live at []()
 
-Extensive documentation with examples [here](https://api-dev-camper.herokuapp.com)
+Extensive documentation with examples [here](https://documenter.getpostman.com/view/17345473/2s9Y5ePfSt)
 
--   Version: 1.0.0
--   Author: [Fahim](https://www.linkedin.com/in/fahimjason)
+- Version: 1.0.0
+- Author: [KCDBD](https://)
