@@ -31,7 +31,7 @@
         "_id": "5c8a1d5b0190b214360dc032",
         "name": "Sasha Ryan",
         "email": "sasha@gmail.com",
-        "role": "publisher",
+        "role": "volunteer",
         "password": "123456"
     },
     {
@@ -52,7 +52,7 @@
         "_id": "5c8a1d5b0190b214360dc035",
         "name": "Stephanie Hanson",
         "email": "steph@gmail.com",
-        "role": "user",
+        "role": "volunteer",
         "password": "123456"
     },
     {
@@ -66,7 +66,7 @@
         "_id": "5c8a1d5b0190b214360dc037",
         "name": "Maggie Johnson",
         "email": "maggie@gmail.com",
-        "role": "user",
+        "role": "speaker",
         "password": "123456"
     },
     {
@@ -87,7 +87,7 @@
         "_id": "5c8a1d5b0190b214360dc040",
         "name": "Sara Kensing",
         "email": "sara@gmail.com",
-        "role": "user",
+        "role": "speaker",
         "password": "123456"
     }
 ]

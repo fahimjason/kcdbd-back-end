@@ -9,8 +9,15 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedResults);
 });
 
+// @desc      Get all speakers
+// @route     GET /api/v1/users/speakers
+// @access    Public
+exports.getEventContributors = asyncHandler(async (req, res, next) => {
+    res.status(200).json(res.advancedResults);
+});
+
 // @desc      Get single user
-// @route     GET /api/v1/auth/users/:id
+// @route     GET /api/v1/users/:id
 // @access    Private/Admin
 exports.getUser = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.params.id);
@@ -22,7 +29,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Create user
-// @route     POST /api/v1/auth/users
+// @route     POST /api/v1/users
 // @access    Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
     const user = await User.create(req.body);
@@ -36,7 +43,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Update user
-// @route     PUT /api/v1/auth/users/:id
+// @route     PUT /api/v1/users/:id
 // @access    Private/Admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -51,7 +58,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Delete user
-// @route     DELETE /api/v1/auth/users/:id
+// @route     DELETE /api/v1/users/:id
 // @access    Private/Admin
 exports.deleteUser = asyncHandler(async (req, res, next) => {
     await User.findByIdAndDelete(req.params.id);
