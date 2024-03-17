@@ -1,0 +1,94 @@
+version: "3.9"
+services:
+  # Frontend =======================
+  # client:
+  #   container_name: client
+  #   # Build the Dockerfile from the current directory
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   # Expose port 3000
+  #   ports:
+  #     - "3001:3000"
+  #   # Volumes for hot-reloading
+  #   volumes:
+  #     - ./client:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - REACT_APP_URL=http://54.227.58.190:5002/api/v1
+  #     - JAEGER_URL=http://jaeger:4318
+  #   depends_on:
+  #     - mongodb
+  #     - backend
+  #   restart: always
+
+  # Backend ======================
+  backend:
+    container_name: backend
+    # Build the Dockerfile from the current directory
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    # Expose port 3000
+    ports:
+      - "5002:5000"
+    # Volumes for hot-reloading
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      # NODE_OPTIONS: "--require ./tracer.js"
+      MONGO_URI: mongodb://admin:password@mongodb:27017/kcdbd
+      FILE_UPLOAD_PATH: ./public/uploads
+      MAX_FILE_UPLOAD: 1000000
+
+      JWT_SECRET: jwt_secret
+      JWT_EXPIRE: 30d
+      JWT_COOKIE_EXPIRE: 30
+
+      SMTP_HOST: smtp.mailtrap.io
+      SMTP_PORT: 2525
+      SMTP_EMAIL: 8600985657ab54
+      SMTP_PASSWORD: a8018c673f64c0
+      FROM_EMAIL: noreply@api-kcdbd.com
+      FROM_NAME: KCDBD
+    depends_on:
+      - mongodb
+    restart: always
+
+  # Database ====================
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    restart: always
+  
+  # # MySQL Database
+  # mariadb:
+  #   image: mariadb:latest
+  #   container_name: mariadb
+  #   ports:
+  #     - "33066:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: cphr1AOtimmmscw6jKPc
+  #     MYSQL_USER: oninjas
+  #     MYSQL_PASSWORD: cphr1AOtimmmscw6jKPc
+  #     MYSQL_DATABASE: ninjas
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+  #   restart: always
+
+# Docker Network
+## docker network create microservices
+# networks:
+#   default:
+#     external:
+#       name: microservices
