@@ -35,7 +35,7 @@ services:
       - "5002:5000"
     # Volumes for hot-reloading
     volumes:
-      - ./backend:/app
+      - ./:/app
       - /app/node_modules
     environment:
       # NODE_OPTIONS: "--require ./tracer.js"
