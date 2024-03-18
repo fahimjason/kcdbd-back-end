@@ -9,13 +9,6 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedResults);
 });
 
-// @desc      Get all speakers
-// @route     GET /api/v1/users/speakers
-// @access    Public
-exports.getEventContributors = asyncHandler(async (req, res, next) => {
-    res.status(200).json(res.advancedResults);
-});
-
 // @desc      Get single user
 // @route     GET /api/v1/users/:id
 // @access    Private/Admin
