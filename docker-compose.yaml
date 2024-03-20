@@ -39,20 +39,20 @@ services:
       - /app/node_modules
     environment:
       # NODE_OPTIONS: "--require ./tracer.js"
-      MONGO_URI: mongodb://admin:password@mongodb:27017/kcdbd
-      FILE_UPLOAD_PATH: ./public/uploads
-      MAX_FILE_UPLOAD: 1000000
+      MONGO_URI: ${MONGO_URI} 
+      FILE_UPLOAD_PATH: ${FILE_UPLOAD_PATH}
+      MAX_FILE_UPLOAD: ${MAX_FILE_UPLOAD}
 
-      JWT_SECRET: jwt_secret
-      JWT_EXPIRE: 30d
-      JWT_COOKIE_EXPIRE: 30
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE: ${JWT_EXPIRE}
+      JWT_COOKIE_EXPIRE: ${JWT_COOKIE_EXPIRE}
 
-      SMTP_HOST: smtp.mailtrap.io
-      SMTP_PORT: 2525
-      SMTP_EMAIL: 8600985657ab54
-      SMTP_PASSWORD: a8018c673f64c0
-      FROM_EMAIL: noreply@api-kcdbd.com
-      FROM_NAME: KCDBD
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      FROM_EMAIL: ${FROM_EMAIL}
+      FROM_NAME: ${FROM_NAME}
     depends_on:
       - mongodb
     restart: always
@@ -67,8 +67,8 @@ services:
       - ./data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     restart: always
   
   # # MySQL Database
