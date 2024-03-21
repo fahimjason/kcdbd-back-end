@@ -1,4 +1,4 @@
-db = db.getSiblingDB('kcdbd');
+db = db.getSiblingDB(process.env.DB_NAME);
 
 db.createUser({
   user: process.env.MONGO_INITDB_ROOT_USERNAME,
@@ -6,7 +6,7 @@ db.createUser({
   roles: [
     {
       role: 'readWrite',
-      db: 'kcdbd',
+      db: process.env.DB_NAME,
     },
   ],
 });

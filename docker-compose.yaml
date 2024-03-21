@@ -40,6 +40,7 @@ services:
     environment:
       # NODE_OPTIONS: "--require ./tracer.js"
       MONGO_URI: ${MONGO_URI} 
+      DB_NAME: ${DB_NAME}
       FILE_UPLOAD_PATH: ${FILE_UPLOAD_PATH}
       MAX_FILE_UPLOAD: ${MAX_FILE_UPLOAD}
 
@@ -53,6 +54,14 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       FROM_EMAIL: ${FROM_EMAIL}
       FROM_NAME: ${FROM_NAME}
+
+      PAYMENT_API_SANDBOX: ${PAYMENT_API_SANDBOX}
+      PAYMENT_API_LIVE: ${PAYMENT_API_LIVE}
+      PAYMENT_STORE_ID: ${PAYMENT_STORE_ID}
+      PAYMENT_SIGNATURE_KEY: ${PAYMENT_SIGNATURE_KEY}
+      PAYMENT_SUCCESS_URL: ${PAYMENT_SUCCESS_URL}
+      PAYMENT_FAIL_URL: ${PAYMENT_FAIL_URL}
+      PAYMENT_CANCEL_URL: ${PAYMENT_CANCEL_URL}
     depends_on:
       - mongodb
     restart: always
