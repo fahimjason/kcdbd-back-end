@@ -17,9 +17,36 @@ const UserSchema = new mongoose.Schema({
             'Please add a valid email'
         ]
     },
+    mobile: {
+        type: String, 
+        trim: true,
+        required: [true, 'Please provide a valid mobile number'], 
+        minlength: 11,
+        maxlength: 14,
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+        required: [true, 'Please select the gender']
+    },
+    designation: {
+        type: String,
+        required: [true, 'Please add your designation']
+    },
+    organization: {
+        type: String,
+        required: [true, 'Please add your organization or university name']
+    },
+    imageUrl: {
+        type: String,
+        match: [
+            /^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/,
+            'Please add a valid URL for image url'
+        ]
+    },
     role: {
         type: String,
-        enum: ['user', 'organizer', 'speaker', 'volunteer', 'admin'],
+        enum: ['user', 'organizer', 'speaker', 'volunteer'],
         default: 'user'
     },
     password: {

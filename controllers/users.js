@@ -15,6 +15,12 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 exports.getUser = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.params.id);
 
+    if (!user) {
+        return next(
+            new ErrorResponse(`No user with the id of ${req.params.id}`, 404)
+        );
+    }
+
     res.status(200).json({
         success: true,
         data: user
@@ -43,6 +49,12 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
         new: true,
         runValidators: true
     });
+
+    if (!user) {
+        return next(
+            new ErrorResponse(`No user with the id of ${req.params.id}`, 404),
+        );
+    }
 
     res.status(200).json({
         success: true,

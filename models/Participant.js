@@ -16,11 +16,11 @@ const ParticipantSchema = new mongoose.Schema({
     },
     designation: {
         type: String,
-        require: true
+        required: true
     },
     organization: {
         type: String,
-        require: true
+        required: true
     },
     imageUrl: {
         type: String,
