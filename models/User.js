@@ -37,6 +37,13 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add your organization or university name']
     },
+    linkedin: {
+        type: String,
+        match: [
+            /^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/,
+            'Please add a valid URL for LinkedIn profile'
+        ]
+    },
     imageUrl: {
         type: String,
         match: [

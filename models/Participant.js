@@ -22,6 +22,13 @@ const ParticipantSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    linkedin: {
+        type: String,
+        match: [
+            /^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/,
+            'Please add a valid URL for LinkedIn profile'
+        ]
+    },
     imageUrl: {
         type: String,
         match: [
