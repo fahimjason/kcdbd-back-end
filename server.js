@@ -25,6 +25,7 @@ const auth = require('./routes/auth');
 const users = require('./routes/users');
 const tickets = require('./routes/tickets');
 const orders = require('./routes/orders');
+const workshops = require('./routes/workshops');
 const participants = require('./routes/participants');
 
 const app = express();
@@ -73,6 +74,7 @@ app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
 app.use('/api/v1/tickets', tickets);
 app.use('/api/v1/orders', orders);
+app.use('/api/v1/workshops', workshops);
 app.use('/api/v1/participants', participants);
 
 app.use(errorHandler);
