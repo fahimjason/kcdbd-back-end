@@ -17,7 +17,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 
     if (!user) {
         return next(
-            new ErrorResponse(`No user with the id of ${req.params.id}`, 404)
+            new ErrorResponse(`No user with the id of ${req.params.id}`, 404),
         );
     }
 
@@ -66,7 +66,16 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/v1/users/:id
 // @access    Private/Admin
 exports.deleteUser = asyncHandler(async (req, res, next) => {
-    await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+        return next(
+            new ErrorResponse(`No user with the id of ${req.params.id}`),
+            404
+        );
+    }
+
+    await user.remove();
 
     res.status(200).json({
         success: true,
