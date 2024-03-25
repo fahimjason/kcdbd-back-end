@@ -5,6 +5,7 @@ const {
     createParticipant,
     updateParticipant,
     deleteParticipant,
+    participantPhotoUpload
 } = require('../controllers/participants');
 
 const Participant = require('../models/Participant');
@@ -17,12 +18,15 @@ const { protect, authorize } = require('../middleware/auth');
 router
     .route('/')
     .get(advancedResults(Participant), getParticipants)
-    .post(protect, authorize('admin'), createParticipant);
+    .post(protect, authorize('admin', 'organizer'), createParticipant);
+
+router.route('/:id/photo')
+    .put(protect, authorize('admin', 'organizer'), participantPhotoUpload);
 
 router
     .route('/:id')
     .get(getParticipant)
-    .put(protect, authorize('admin'), updateParticipant)
-    .delete(protect, authorize('admin'), deleteParticipant);
+    .put(protect, authorize('admin', 'organizer'), updateParticipant)
+    .delete(protect, authorize('admin', 'organizer'), deleteParticipant);
 
 module.exports = router;

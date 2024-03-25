@@ -78,6 +78,14 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
         );
     }
 
+    // Remove previous photo if exists
+    if (user.photo) {
+        const previousPhotoPath = `${process.env.FILE_UPLOAD_PATH}/${user.photo}`;
+        if (fs.existsSync(previousPhotoPath)) {
+            fs.unlinkSync(previousPhotoPath);
+        }
+    }
+
     await user.remove();
 
     res.status(200).json({
@@ -117,7 +125,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
         }
     }
 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
         if (err) {
             console.error(err);
             return next(new ErrorResponse(`Problem with file upload`, 500));

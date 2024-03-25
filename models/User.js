@@ -54,15 +54,15 @@ const UserSchema = new mongoose.Schema({
         //     'Please add a valid URL for image url'
         // ]
     },
-    track: {
-        type: String,
-        enum: ['presentation-deck', 'workshop'],
-        required: true
-    },
-    workshop: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Workshop',
-    },
+    // track: {
+    //     type: String,
+    //     enum: ['presentation-deck', 'workshop'],
+    //     required: true
+    // },
+    // workshop: {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: 'Workshop',
+    // },
     role: {
         type: String,
         enum: ['user', 'organizer', 'speaker', 'volunteer'],
@@ -119,52 +119,52 @@ UserSchema.methods.getResetPasswordToken = function () {
 };
 
 // Pre-save hook to check registration limit before adding a user
-UserSchema.pre('save', async function (next) {
-    try {
-        // Get the workshop ID from the user's data
-        const workshopId = this.workshop;
+// UserSchema.pre('save', async function (next) {
+//     try {
+//         // Get the workshop ID from the user's data
+//         const workshopId = this.workshop;
 
-        // Count the number of users registered for the workshop
-        const registrationCount = await this.model('User').countDocuments({ workshop: workshopId });
+//         // Count the number of users registered for the workshop
+//         const registrationCount = await this.model('User').countDocuments({ workshop: workshopId });
 
-        // Find the workshop by ID to get its limit
-        const workshop = await this.model('Workshop').findById(workshopId);
+//         // Find the workshop by ID to get its limit
+//         const workshop = await this.model('Workshop').findById(workshopId);
 
-        // Check if the registration count exceeds the limit
-        if (registrationCount >= workshop?.limit) {
-            workshop.availability = false;
-            await workshop.save();
+//         // Check if the registration count exceeds the limit
+//         if (registrationCount >= workshop?.limit) {
+//             workshop.availability = false;
+//             await workshop.save();
 
-            return next(
-                new ErrorResponse(
-                    `Registration limit for this workshop has been reached. Please select different one`,
-                    400
-                )
-            );
-        }
+//             return next(
+//                 new ErrorResponse(
+//                     `Registration limit for this workshop has been reached. Please select different one`,
+//                     400
+//                 )
+//             );
+//         }
 
-        next(); // Proceed to save the user if the limit check passes
-    } catch (error) {
-        next(error); // Pass any error to the next middleware or error handler
-    }
-});
+//         next(); // Proceed to save the user if the limit check passes
+//     } catch (error) {
+//         next(error); // Pass any error to the next middleware or error handler
+//     }
+// });
 
 // Post-remove hook to update registration count after deleting a user
-UserSchema.pre('remove', async function (next) {
-    try {
-        // Get the workshop ID from the deleted user's data
-        const workshopId = this.workshop;
+// UserSchema.pre('remove', async function (next) {
+//     try {
+//         // Get the workshop ID from the deleted user's data
+//         const workshopId = this.workshop;
 
-        // Count the number of users registered for the workshop after deletion
-        // const registrationCount = await this.model('User').countDocuments({ workshop: workshopId });
+//         // Count the number of users registered for the workshop after deletion
+//         // const registrationCount = await this.model('User').countDocuments({ workshop: workshopId });
 
-        // Find the workshop by ID and update its registration count
-        await this.model('Workshop').findByIdAndUpdate(workshopId, { availability: true });
+//         // Find the workshop by ID and update its registration count
+//         await this.model('Workshop').findByIdAndUpdate(workshopId, { availability: true });
 
-        next(); // Proceed to the next middleware or operation
-    } catch (error) {
-        next(error); // Pass any error to the next middleware or error handler
-    }
-});
+//         next(); // Proceed to the next middleware or operation
+//     } catch (error) {
+//         next(error); // Pass any error to the next middleware or error handler
+//     }
+// });
 
 module.exports = mongoose.model('User', UserSchema);

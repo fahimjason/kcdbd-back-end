@@ -9,7 +9,7 @@ const { fileUploader } = require('../utils/file-upload');
 // @route     POST /api/v1/auth/register
 // @access    Public
 exports.register = asyncHandler(async (req, res, next) => {
-    const { name, email, mobile, gender, organization, designation, track, workshop, password, role } = req.body;
+    const { name, email, mobile, gender, organization, designation, password, role } = req.body;
 
     if (!req.files) {
         return next(new ErrorResponse(`Please upload a file`, 400));
@@ -23,13 +23,18 @@ exports.register = asyncHandler(async (req, res, next) => {
         gender,
         organization,
         designation,
-        track,
-        workshop,
         password,
         role
     });
 
     const file = fileUploader(req, user._id);
+
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
+        if (err) {
+            console.error(err);
+            return next(new ErrorResponse(`Problem with file upload`, 500));
+        }
+    });
 
     user.photo = `uploads/${file.name}`;
     await user.save();
