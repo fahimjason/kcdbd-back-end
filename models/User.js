@@ -54,15 +54,6 @@ const UserSchema = new mongoose.Schema({
         //     'Please add a valid URL for image url'
         // ]
     },
-    // track: {
-    //     type: String,
-    //     enum: ['presentation-deck', 'workshop'],
-    //     required: true
-    // },
-    // workshop: {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'Workshop',
-    // },
     role: {
         type: String,
         enum: ['user', 'organizer', 'speaker', 'volunteer'],

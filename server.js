@@ -13,6 +13,7 @@ const hpp = require('hpp');
 const cors = require('cors');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
+const bodyParser = require('body-parser');
 
 // Load env variables
 dotenv.config({ path: './config/config.env' });
@@ -32,6 +33,9 @@ const app = express();
 
 // Body parser
 app.use(express.json());
+
+// parse application/x-www-form-urlencoded 
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Cookie parser
 app.use(cookieParser());

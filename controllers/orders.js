@@ -147,41 +147,49 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 
 exports.paymentRequest = asyncHandler(async (req, res, next) => {
     const order = await Order.findById(req.params.orderId);
+
+    if(order.status === 'paid') {
+        return next(
+            new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
+        );
+    }
     const user = await User.findById(req.user);
 
     const paymentData = {
-        store_id: process.env.PAYMENT_STORE_ID,
-        signature_key: process.env.PAYMENT_SIGNATURE_KEY,
         cus_name: user.name,
         cus_email: user.email,
-        cus_phone: "01870762472",
+        cus_phone: "01715901532",
+        amount: order.total,
+        tran_id: order._id.toString(),
+        signature_key: process.env.PAYMENT_SIGNATURE_KEY,
+        store_id: process.env.PAYMENT_STORE_ID,
+        currency: 'BDT',
+        desc: 'KCD Payment',
         cus_add1: "53, Gausul Azam Road, Sector-14, Dhaka, Bangladesh",
         cus_add2: "Dhaka",
         cus_city: "Dhaka",
         cus_country: "Bangladesh",
-        amount: order.total,
-        tran_id: order._id.toString(),
-        currency: 'BDT',
         success_url: process.env.PAYMENT_SUCCESS_URL,
-        fail_url: process.env.PAYMENT_FAIL_URL,
-        cancel_url: process.env.PAYMENT_CANCEL_URL,
-        desc: 'KCD Payment',
+        fail_url: process.env.PAYMENT_SUCCESS_URL,
+        cancel_url: process.env.PAYMENT_SUCCESS_URL,
         type: 'json'
     }
 
-    console.log('paymentData: line 173 \n', paymentData);
-
-    console.log(process.env.PAYMENT_API_SANDBOX);
-    const payment = await axios.post(process.env.PAYMENT_API_SANDBOX, paymentData);
-
-    console.log(payment.data);
+    const payment = await axios.post("https://sandbox.aamarpay.com/jsonpost.php", paymentData);
 
     res.status(200).json({
         success: true,
-        data: {}
+        data: {
+            payment_url: payment.data.payment_url
+        }
     });
 });
 
 exports.updatePayment = asyncHandler(async (req, res, next) => {
-    console.log(req.body);
+    res.send('Paid');
+    const order = await Order.findById(req.body.mer_txnid);
+    order.status = req.body.pay_status === 'Successful'  ? 'paid' : 'failed';
+    order.payment_info = {...req.body};
+    await order.save();
+
 });
