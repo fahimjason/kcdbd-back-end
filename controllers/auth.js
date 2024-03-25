@@ -3,12 +3,17 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const sendEmail = require('../utils/sendEmail');
 const User = require('../models/User');
+const { fileUploader } = require('../middleware/file-upload');
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
 // @access    Public
 exports.register = asyncHandler(async (req, res, next) => {
     const { name, email, mobile, gender, organization, designation, track, workshop, password, role } = req.body;
+
+    if (!req.files) {
+        return next(new ErrorResponse(`Please upload a file`, 400));
+    }
 
     // Create user
     const user = await User.create({
@@ -23,6 +28,11 @@ exports.register = asyncHandler(async (req, res, next) => {
         password,
         role
     });
+
+    const file = fileUploader(req, user._id);
+
+    user.photo = `uploads/${file.name}`;
+    await user.save();
 
     sendTokenResponse(user, 200, res);
 });

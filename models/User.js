@@ -47,12 +47,12 @@ const UserSchema = new mongoose.Schema({
             'Please add a valid URL for LinkedIn profile'
         ]
     },
-    image_url: {
+    photo: {
         type: String,
-        match: [
-            /^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/,
-            'Please add a valid URL for image url'
-        ]
+        // match: [
+        //     /^(https?|ftp):\/\/[^\s\/$.?#].[^\s]*$/,
+        //     'Please add a valid URL for image url'
+        // ]
     },
     track: {
         type: String,

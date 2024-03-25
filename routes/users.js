@@ -5,6 +5,7 @@ const {
     createUser,
     updateUser,
     deleteUser,
+    userPhotoUpload
 } = require('../controllers/users');
 
 const User = require('../models/User');
@@ -13,6 +14,9 @@ const router = express.Router({ mergeParams: true });
 
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
+
+router.route('/:id/photo')
+    .put(protect, userPhotoUpload);
 
 router.use(protect);
 router.use(authorize('admin'));
