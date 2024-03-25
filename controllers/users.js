@@ -3,7 +3,7 @@ const fs = require('fs');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
-const { fileUploader } = require('../middleware/file-upload');
+const { fileUploader } = require('../utils/file-upload');
 
 // @desc      Get all users
 // @route     GET /api/v1/auth/users

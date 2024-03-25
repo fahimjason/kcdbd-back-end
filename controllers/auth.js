@@ -3,7 +3,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const sendEmail = require('../utils/sendEmail');
 const User = require('../models/User');
-const { fileUploader } = require('../middleware/file-upload');
+const { fileUploader } = require('../utils/file-upload');
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
