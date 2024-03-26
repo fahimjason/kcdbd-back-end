@@ -38,7 +38,7 @@ exports.getOrder = asyncHandler(async (req, res, next) => {
 exports.addOrder = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
-    const { cartItems } = req.body;
+    const {name, email, phone, track, workshop, tshirt, description, address, cartItems } = req.body;
 
     if (!cartItems || cartItems.length < 1) {
         return next(
@@ -62,7 +62,7 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
     
             const singleOrderItem = {
                 quantity: item.quantity,
-                name: title,
+                title: title,
                 price,
                 ticket: _id,
             };
@@ -80,6 +80,14 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
     const total = tax + shippingFee + subtotal;
 
     const order = await Order.create({
+        name,
+        email, 
+        phone,
+        track,
+        workshop, 
+        tshirt,
+        description,
+        address,
         tax,
         shippingFee,
         subtotal,
@@ -166,9 +174,9 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         currency: 'BDT',
         desc: 'KCD Payment',
         cus_add1: "53, Gausul Azam Road, Sector-14, Dhaka, Bangladesh",
-        cus_add2: "Dhaka",
-        cus_city: "Dhaka",
-        cus_country: "Bangladesh",
+        // cus_add2: "Dhaka",
+        // cus_city: "Dhaka",
+        // cus_country: "Bangladesh",
         success_url: process.env.PAYMENT_SUCCESS_URL,
         fail_url: process.env.PAYMENT_SUCCESS_URL,
         cancel_url: process.env.PAYMENT_SUCCESS_URL,
