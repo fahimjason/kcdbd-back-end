@@ -120,7 +120,10 @@ const orderSchema = mongoose.Schema({
         pg_card_risklevel: String,
         pg_error_code_details: String,
     },
-    timing: Date.now() + 30 * 60 * 1000,
+    timing: {
+        type: Date,
+        default: Date.now() + 30 * 60 * 1000,
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',

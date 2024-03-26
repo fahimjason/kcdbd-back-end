@@ -183,7 +183,7 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         type: 'json'
     }
 
-    const payment = await axios.post("https://sandbox.aamarpay.com/jsonpost.php", paymentData);
+    const payment = await axios.post(process.env.PAYMENT_API, paymentData);
 
     res.status(200).json({
         success: true,
