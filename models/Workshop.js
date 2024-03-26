@@ -19,6 +19,11 @@ const WorkshopSchema = new mongoose.Schema({
         required: [true, 'Please add a minimum skill'],
         enum: ['beginner', 'intermediate', 'advanced']
     },
+    sessionTime: {
+        type: String,
+        required: [true, 'Please add the session time'],
+        enum: ['morning', 'afternoon']
+    },
     availability: {
         type: Boolean,
         default: true
