@@ -30,13 +30,12 @@ const orderSchema = mongoose.Schema({
         number: {
             type: String,
             required: true,
-            unique: true,
             minlength: 11,
             maxlength: 14,
         },
         promotion: {
             type: Boolean,
-            required: true
+            required: [true, 'Please add your consent about the promotional information. Do you want to receive it or not?']
         }
     },
     track: {
@@ -124,6 +123,10 @@ const orderSchema = mongoose.Schema({
         type: Date,
         default: Date.now() + 30 * 60 * 1000,
     },
+    terms: {
+        type: Boolean,
+        require: [true, 'Please add your consent about the terms & conditions. ']
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',
@@ -132,6 +135,53 @@ const orderSchema = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    }
+});
+
+// Pre-save hook to check workshop limit and user session orders
+orderSchema.pre('save', async function(next) {
+    try {
+        if (!this.isModified('workshop')) {
+            next();
+        }
+
+        const order = this;
+
+        let morningCount = 0;
+        let afternoonCount = 0;
+
+        for (const workshopId of order.workshop) {
+            const workshop = await this.model('Workshop').findById(workshopId);
+
+            const ordersCount = await this.model('Order').countDocuments({ workshop: workshopId, status: { $in: ['paid', 'pending'] } });
+
+            if (ordersCount >= workshop.limit) {
+                workshop.availability = false;
+                await workshop.save();
+                return next(new ErrorResponse(`${workshop.title} workshop limit reached out. Please choose another one.`, 400));
+            }
+
+            // Increment counts based on session time
+            if (workshop.sessionTime === 'morning') {
+                morningCount++;
+            } else if (workshop.sessionTime === 'afternoon') {
+                afternoonCount++;
+            }
+        }
+
+        // Check if user already has two active orders for morning session
+        if (morningCount > 1) {
+            return next(new ErrorResponse(`One can't take more than one workshop for morning session.`, 400));
+        }
+
+        // Check if user already has two active orders for afternoon session
+        if (afternoonCount > 1) {
+            return next(new ErrorResponse(`One can't take more than one workshop for afternoon session.`, 400));
+        }
+
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 

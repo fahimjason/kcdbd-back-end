@@ -4,7 +4,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
-const User = require('../models/User');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -156,27 +155,31 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 exports.paymentRequest = asyncHandler(async (req, res, next) => {
     const order = await Order.findById(req.params.orderId);
 
+    if(!order) {
+        return next(
+            new ErrorResponse(`No order found with the id of ${req.params.orderId}.`, 404),
+        );
+    }
+
+    const {_id, name, email, phone, total, description, address} = order;
+
     if(order.status === 'paid') {
         return next(
             new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
         );
     }
-    const user = await User.findById(req.user);
 
     const paymentData = {
-        cus_name: user.name,
-        cus_email: user.email,
-        cus_phone: "01715901532",
-        amount: order.total,
-        tran_id: order._id.toString(),
+        cus_name: name,
+        cus_email: email,
+        cus_phone: phone.number,
+        amount: total,
+        tran_id: _id.toString(),
         signature_key: process.env.PAYMENT_SIGNATURE_KEY,
         store_id: process.env.PAYMENT_STORE_ID,
         currency: 'BDT',
-        desc: 'KCD Payment',
-        cus_add1: "53, Gausul Azam Road, Sector-14, Dhaka, Bangladesh",
-        // cus_add2: "Dhaka",
-        // cus_city: "Dhaka",
-        // cus_country: "Bangladesh",
+        desc: description,
+        cus_add1: address,
         success_url: process.env.PAYMENT_SUCCESS_URL,
         fail_url: process.env.PAYMENT_SUCCESS_URL,
         cancel_url: process.env.PAYMENT_SUCCESS_URL,
@@ -195,8 +198,18 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
 
 exports.updatePayment = asyncHandler(async (req, res, next) => {
     res.send('Paid');
+    const status = req.body.pay_status === 'Successful'  ? 'paid' : 'failed';
+
+    // const orderId = req.body.mer_txnid;
+    // const updateFields = {
+        // status: req.body.pay_status === 'Successful'  ? 'paid' : 'failed',
+        // payment_info: {...req.body}
+    // };
+
+    // await Order.findByIdAndUpdate(orderId, updateFields, { new: true, runValidators: true });
+
     const order = await Order.findById(req.body.mer_txnid);
-    order.status = req.body.pay_status === 'Successful'  ? 'paid' : 'failed';
+    order.status = status;
     order.payment_info = {...req.body};
     await order.save();
 
