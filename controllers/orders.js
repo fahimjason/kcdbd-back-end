@@ -9,7 +9,17 @@ const Ticket = require('../models/Ticket');
 // @route     GET /api/v1/orders
 // @access    Public
 exports.getOrders = asyncHandler(async (req, res, next) => {
-    res.status(200).json(res.advancedResults);
+    if (req.user.role !== 'admin') {
+        const orders = await Order.find({ user: req.user.id });
+
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            data: orders
+        });
+    } else {
+        res.status(200).json(res.advancedResults);
+    }
 });
 
 // @desc      Get single order

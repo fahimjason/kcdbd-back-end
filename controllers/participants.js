@@ -30,10 +30,6 @@ exports.getParticipant = asyncHandler(async (req, res, next) => {
 exports.createParticipant = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
-    if(req.body.role === 'admin' && req.user.role !== 'admin') {
-        return next(new ErrorResponse(`Only admin is authorized to make new admin`), 403);
-    }
-
     const participant = await Participant.create(req.body);
 
     if (req.files) {
