@@ -15,7 +15,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`Please upload a file`, 400));
     }
 
-    if(req.body.role === 'admin' && req?.user?.role !== 'admin') {
+    if(req.body.role === 'admin') {
         return next(new ErrorResponse(`Only admin is authorized to make new admin`), 403);
     }
 
