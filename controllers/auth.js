@@ -15,6 +15,10 @@ exports.register = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`Please upload a file`, 400));
     }
 
+    if(req.body.role === 'admin' && req?.user?.role !== 'admin') {
+        return next(new ErrorResponse(`Only admin is authorized to make new admin`), 403);
+    }
+
     // Create user
     const user = await User.create({
         name,

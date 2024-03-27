@@ -17,7 +17,7 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(advancedResults(Order, {
+    .get(protect, advancedResults(Order, {
             path: 'user',
             select: 'name email'
         }), getOrders)
