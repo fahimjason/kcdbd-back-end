@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
@@ -31,6 +32,11 @@ const participants = require('./routes/participants');
 
 const app = express();
 
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirname, 'access.log'),
+    { flags: 'a' }
+);
+
 // Body parser
 app.use(express.json());
 
@@ -39,6 +45,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Cookie parser
 app.use(cookieParser());
+
+// Production logging middleware
+if (process.env.NODE_ENV === 'production') {
+    app.use(morgan('combined', { stream: accessLogStream }));
+}
 
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
