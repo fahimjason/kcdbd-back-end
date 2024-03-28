@@ -1,27 +1,22 @@
 version: "3.9"
 services:
   # Frontend =======================
-  # client:
-  #   container_name: client
-  #   # Build the Dockerfile from the current directory
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #   # Expose port 3000
-  #   ports:
-  #     - "3001:3000"
-  #   # Volumes for hot-reloading
-  #   volumes:
-  #     - ./client:/app
-  #     - /app/node_modules
-  #   environment:
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - REACT_APP_URL=http://54.227.58.190:5002/api/v1
-  #     - JAEGER_URL=http://jaeger:4318
-  #   depends_on:
-  #     - mongodb
-  #     - backend
-  #   restart: always
+  client:
+    container_name: client
+    # Build the Dockerfile from the current directory
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    # Expose port 3000
+    ports:
+      - "3001:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_URL=https://api.kcddhaka.org/api/v1/
+    depends_on:
+      - mongodb
+      - backend
+    restart: always
 
   # Backend ======================
   backend:
@@ -34,9 +29,6 @@ services:
     ports:
       - "5002:5000"
     # Volumes for hot-reloading
-    volumes:
-      - ./:/app
-      - /app/node_modules
     environment:
       # NODE_OPTIONS: "--require ./tracer.js"
       MONGO_URI: ${MONGO_URI} 
@@ -55,7 +47,6 @@ services:
       FROM_EMAIL: ${FROM_EMAIL}
       FROM_NAME: ${FROM_NAME}
 
-      PAYMENT_API: ${PAYMENT_API}
       PAYMENT_API_SANDBOX: ${PAYMENT_API_SANDBOX}
       PAYMENT_API_LIVE: ${PAYMENT_API_LIVE}
       PAYMENT_STORE_ID: ${PAYMENT_STORE_ID}
@@ -72,7 +63,7 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27018:27017"
+      - "27017:27017"
     volumes:
       - ./data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
