@@ -1,19 +1,24 @@
-const moment = require('moment-timezone');
 const Coupon = require('../models/Coupon');
 const ErrorResponse = require('./errorResponse');
+const { checkTimeExpiration } = require('./time');
 
 const couponValidation = async (code, productId, next) => {
     
     const coupon = await Coupon.findOne({code});
-    const {isAvailable, products, expiryDate, usageCount, limit } = coupon;
 
-    const currentDateTime = moment.tz(process.env.TIME_ZONE);
-    const isExpired = moment.tz(expiryDate, process.env.TIME_ZONE).isBefore(currentDateTime);
+    if(!coupon) {
+        return next(
+            new ErrorResponse(`${code} is an invalid coupon.`, 400)
+        );
+    }
+
+    const {isAvailable, products, expiryDate, usageCount, limit } = coupon;
+    const isExpired = checkTimeExpiration(expiryDate);
 
     const isMatched = products.includes(productId);
     const isLimitFill =  usageCount >= limit;
     
-    if(!coupon || !isAvailable || !isMatched || isLimitFill || isExpired) {
+    if(!isAvailable || !isMatched || isLimitFill || isExpired) {
         coupon.isAvailable = false;
         await coupon.save();
 
