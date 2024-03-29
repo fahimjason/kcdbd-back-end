@@ -115,7 +115,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`Please upload a file`, 400));
     }
 
-    const file = fileUploader(req, user._id);
+    const file = fileUploader(req, user._id, next);
 
     // Remove previous photo if exists
     if (user.photo) {

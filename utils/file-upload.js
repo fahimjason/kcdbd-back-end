@@ -1,7 +1,7 @@
 const path = require('path');
 const ErrorResponse = require('./errorResponse');
 
-exports.fileUploader = (req, id) => {
+exports.fileUploader = (req, id, next) => {
     const file = req.files.file;
 
     // Make sure the image is a photo

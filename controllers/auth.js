@@ -11,16 +11,12 @@ const { fileUploader } = require('../utils/file-upload');
 exports.register = asyncHandler(async (req, res, next) => {
     const { name, email, mobile, gender, organization, designation, password, role } = req.body;
 
-    if (!req.files) {
-        return next(new ErrorResponse(`Please upload a file`, 400));
-    }
-
     if(req.body.role === 'admin') {
         return next(new ErrorResponse(`Only admin is authorized to make new admin`), 403);
     }
 
     // Create user
-    const user = await User.create({
+    const user = new User({
         name,
         email,
         mobile,
@@ -31,17 +27,21 @@ exports.register = asyncHandler(async (req, res, next) => {
         role
     });
 
-    const file = fileUploader(req, user._id);
+    if (req.files) {
+        const file = fileUploader(req, user._id, next);
 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
-        if (err) {
-            console.error(err);
-            return next(new ErrorResponse(`Problem with file upload`, 500));
-        }
-    });
+        file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
+            if (err) {
+                console.error(err);
+                return next(new ErrorResponse(`Problem with file upload`, 500));
+            }
+        });
 
-    user.photo = `uploads/${file.name}`;
-    await user.save();
+        user.photo = `uploads/${file.name}`;
+        await user.save();
+    }
+
+    console.log(user);
 
     sendTokenResponse(user, 200, res);
 });

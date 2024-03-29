@@ -30,10 +30,11 @@ exports.getParticipant = asyncHandler(async (req, res, next) => {
 exports.createParticipant = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
-    const participant = await Participant.create(req.body);
+    console.log(req.body)
+    const participant = new Participant(req.body);
 
     if (req.files) {
-        const file = fileUploader(req, participant._id);
+        const file = fileUploader(req, participant._id, next);
 
         file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
             if (err) {
@@ -120,7 +121,7 @@ exports.participantPhotoUpload = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`Please upload a file`, 400));
     }
 
-    const file = fileUploader(req, participant._id);
+    const file = fileUploader(req, participant._id, next);
 
     // Remove previous photo if exists
     if (participant.photo) {
