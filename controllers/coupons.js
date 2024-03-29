@@ -1,3 +1,5 @@
+const voucherCodes = require('voucher-code-generator');
+
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Coupon = require('../models/Coupon');
@@ -35,7 +37,10 @@ exports.getCoupon = asyncHandler(async (req, res, next) => {
 exports.addCoupon = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
-    const coupon = await Coupon.create(req.body);
+    const coupon = await Coupon.create({
+        ...req.body, 
+        code: `${req.body.code}-${voucherCodes.generate({ length: 4 })[0]}`
+    });
 
     res.status(200).json({
         success: true,
