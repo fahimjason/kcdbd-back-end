@@ -36,6 +36,7 @@ const ParticipantSchema = new mongoose.Schema({
         type: String,
         enum: ['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', ''],
     },
+    sponsor_link: String,
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',

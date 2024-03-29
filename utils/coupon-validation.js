@@ -18,7 +18,7 @@ const couponValidation = async (code, productId, next) => {
         await coupon.save();
 
         return next(
-            new ErrorResponse(`${code} is an invalid coupon.`, 404)
+            new ErrorResponse(`${code} is an invalid coupon.`, 400)
         );
     }
 
