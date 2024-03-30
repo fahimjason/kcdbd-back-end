@@ -14,7 +14,7 @@ const WorkshopSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a limit number']
     },
-    minimumSkill: {
+    level: {
         type: String,
         required: [true, 'Please add a minimum skill'],
         enum: ['beginner', 'intermediate', 'advanced']
