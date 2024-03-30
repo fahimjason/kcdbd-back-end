@@ -51,10 +51,6 @@ const orderSchema = mongoose.Schema({
             ref: 'Workshop',
         }
     ],
-    description: {
-        type: String,
-        required: true,
-    },
     organization:{
         type: String,
         required: true,

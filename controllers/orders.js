@@ -204,58 +204,80 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         );
     }
 
-    const {_id, name, email, phone, total, description, address} = order;
+    const {_id, name, email, phone, total } = order;
 
     if(order.status === 'paid') {
         return next(
             new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
         );
     }
-
-    const paymentData = {
-        cus_name: name,
-        cus_email: email,
-        cus_phone: phone.number,
-        amount: total,
-        tran_id: _id.toString(),
-        signature_key: process.env.PAYMENT_SIGNATURE_KEY,
-        store_id: process.env.PAYMENT_STORE_ID,
-        currency: process.env.PAYMENT_CURRENCY,
-        desc: description,
-        success_url: process.env.PAYMENT_SUCCESS_URL,
-        fail_url: process.env.PAYMENT_SUCCESS_URL,
-        cancel_url: process.env.PAYMENT_SUCCESS_URL,
-        type: process.env.PAYMENT_DATA_TYPE
+    if(order.status === 'paid') {
+        return next(
+            new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
+        );
     }
 
-    const payment = await axios.post(process.env.PAYMENT_API, paymentData);
-
-    res.status(200).json({
-        success: true,
-        data: {
-            payment_url: payment.data.payment_url
+    if(total > 0) {
+        const paymentData = {
+            cus_name: name,
+            cus_email: email,
+            cus_phone: phone.number,
+            amount: total,
+            tran_id: _id.toString(),
+            signature_key: process.env.PAYMENT_SIGNATURE_KEY,
+            store_id: process.env.PAYMENT_STORE_ID,
+            currency: process.env.PAYMENT_CURRENCY,
+            desc: 'KCD Payment',
+            success_url: process.env.PAYMENT_SUCCESS_URL,
+            fail_url: process.env.PAYMENT_SUCCESS_URL,
+            cancel_url: process.env.PAYMENT_SUCCESS_URL,
+            type: process.env.PAYMENT_DATA_TYPE
         }
-    });
+    
+        const payment = await axios.post(process.env.PAYMENT_API, paymentData);
+    
+        res.status(200).json({
+            success: true,
+            data: {
+                payment_url: payment.data.payment_url
+            }
+        });
+    } else {
+        order.status = 'paid';
+        await order.save();
+
+        res.status(200).send(`
+            Dear ${order.name},
+
+            Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.
+            
+            Best regards,
+            KCD Dhaka 2024 Organizing Team
+        `);
+    }
 });
 
 // @desc      Update payment
 // @route     POST /api/v1/orders/payment-update
 // @access    Public
 exports.updatePayment = asyncHandler(async (req, res, next) => {
-    res.send('Paid');
     const status = req.body.pay_status === 'Successful'  ? 'paid' : 'failed';
-
-    // const orderId = req.body.mer_txnid;
-    // const updateFields = {
-        // status: req.body.pay_status === 'Successful'  ? 'paid' : 'failed',
-        // payment_info: {...req.body}
-    // };
-
-    // await Order.findByIdAndUpdate(orderId, updateFields, { new: true, runValidators: true });
 
     const order = await Order.findById(req.body.mer_txnid);
     order.status = status;
     order.payment_info = {...req.body};
     await order.save();
 
+    if(status === 'paid') {
+        res.status(200).send(`
+            Dear ${order.name},
+
+            Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.
+            
+            Best regards,
+            KCD Dhaka 2024 Organizing Team
+        `);
+    } else {
+        res.send('Order Failed, please try again');
+    }
 });
