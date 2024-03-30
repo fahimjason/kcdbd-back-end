@@ -23,7 +23,7 @@ router.use(authorize('organizer', 'admin'));
 
 router
     .route('/')
-    .get(advancedResults(Coupon), getCoupons)
+    .get(advancedResults(Coupon, 'orders'), getCoupons)
     .post(addCoupon);
 
 router

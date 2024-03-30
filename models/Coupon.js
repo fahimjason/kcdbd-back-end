@@ -15,14 +15,14 @@ const CouponSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add the coupon limit number'],
     },
-    usageCount: { 
-        type: Number, 
-        default: 0 
+    usageCount: {
+        type: Number,
+        default: 0
     },
     products: [
         {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Ticket',
+            type: mongoose.Schema.ObjectId,
+            ref: 'Ticket',
         }
     ],
     description: {
@@ -53,6 +53,20 @@ const CouponSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+},
+    {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    }
+);
+
+// Reverse populate with virtuals
+CouponSchema.virtual('orders', {
+    ref: 'Order',
+    localField: '_id',
+    foreignField: 'coupon',
+    justOne: false,
+    options: { select: '_id name email subtotal discount total' }
 });
 
 module.exports = mongoose.model('Coupon', CouponSchema);

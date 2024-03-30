@@ -30,6 +30,10 @@ const tickets = require('./routes/tickets');
 const orders = require('./routes/orders');
 const workshops = require('./routes/workshops');
 const participants = require('./routes/participants');
+const removePendingOrderCronJob = require('./cron-jobs');
+
+// Start cron job to remove pending orders
+removePendingOrderCronJob();
 
 const app = express();
 
