@@ -11,17 +11,17 @@ const { checkTimeExpiration } = require('../utils/time');
 // @route     GET /api/v1/orders
 // @access    Public
 exports.getOrders = asyncHandler(async (req, res, next) => {
-    if (req.user.role !== 'admin') {
-        const orders = await Order.find({ user: req.user.id });
+    // if (req.user.role !== 'admin') {
+    //     const orders = await Order.find({ user: req.user.id });
 
-        return res.status(200).json({
-            success: true,
-            count: orders.length,
-            data: orders
-        });
-    } else {
+    //     return res.status(200).json({
+    //         success: true,
+    //         count: orders.length,
+    //         data: orders
+    //     });
+    // } else {
         res.status(200).json(res.advancedResults);
-    }
+    // }
 });
 
 // @desc      Get single order
@@ -49,7 +49,7 @@ exports.getOrder = asyncHandler(async (req, res, next) => {
 exports.addOrder = asyncHandler(async (req, res, next) => {
     // req.body.user = req.user.id;
 
-    const {name, email, phone, track, workshop, tshirt, description, organization, designation, cartItems } = req.body;
+    const {name, email, phone, track, workshop, tshirt, description, organization, designation, studentId, cartItems } = req.body;
 
 
     if (!cartItems || cartItems.length < 1) {
@@ -124,6 +124,7 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
         description,
         organization,
         designation,
+        studentId,
         tax,
         shippingFee,
         subtotal,
@@ -151,9 +152,9 @@ exports.updateOrder = asyncHandler(async (req, res, next) => {
     }
 
     // Make sure user is order owner
-    if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
-        return next(new ErrorResponse(`User ${req.user.id} is not authorized to update order ${course._id}`, 401));
-    }
+    // if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    //     return next(new ErrorResponse(`User ${req.user.id} is not authorized to update order ${course._id}`, 401));
+    // }
 
     order = await Order.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
@@ -179,9 +180,9 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
     }
 
     // Make sure user is order owner
-    if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
-        return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete order ${course._id}`, 401));
-    }
+    // if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    //     return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete order ${course._id}`, 401));
+    // }
 
     await order.remove();
 
@@ -221,7 +222,6 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         store_id: process.env.PAYMENT_STORE_ID,
         currency: process.env.PAYMENT_CURRENCY,
         desc: description,
-        // cus_add1: address,
         success_url: process.env.PAYMENT_SUCCESS_URL,
         fail_url: process.env.PAYMENT_SUCCESS_URL,
         cancel_url: process.env.PAYMENT_SUCCESS_URL,
@@ -229,7 +229,6 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
     }
 
     const payment = await axios.post(process.env.PAYMENT_API, paymentData);
-    console.log(payment);
 
     res.status(200).json({
         success: true,

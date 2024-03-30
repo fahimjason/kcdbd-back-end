@@ -14,6 +14,11 @@ const TicketSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a ticket cost']
     },
+    ticketType: {
+        type: String,
+        enum: ['student', 'professional'],
+        required: true
+    },
     limit: {
         type: Number,
         required: [true, 'Please add the ticket limit number'],

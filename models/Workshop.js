@@ -21,7 +21,6 @@ const WorkshopSchema = new mongoose.Schema({
     },
     schedule: {
         type: String,
-        required: [true, 'Please add a time schedule of the session']
     },
     sessionTime: {
         type: String,

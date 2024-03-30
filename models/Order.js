@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const ErrorResponse = require('../utils/errorResponse');
+const { error } = require('console');
 
 const orderItemSchema = mongoose.Schema({
     title: { type: String, required: true },
@@ -60,7 +61,9 @@ const orderSchema = mongoose.Schema({
     },
     designation:{
         type: String,
-        required: true,
+    },
+    studentId:{
+        type: String,
     },
     tshirt: {
         type: String,
@@ -158,6 +161,10 @@ orderSchema.pre('save', async function(next) {
             next();
         }
 
+        // if (!this.isModified('orderItems')) {
+        //     next();
+        // }
+
         const order = this;
 
         let morningCount = 0;
@@ -197,6 +204,51 @@ orderSchema.pre('save', async function(next) {
             return next(new ErrorResponse(`One can't take more than one workshop for afternoon session.`, 400));
         }
 
+        // for (const item of order.orderItems) {
+        //     const ticket = await this.model('Ticket').findById(item.ticket);
+
+        //     // Increment ticket booking count
+        //     if(ticket.bookCount + item.quantity <= ticket.limit) {
+        //         ticket.bookCount += item.quantity;
+        //         await ticket.save();
+        //     } else {
+        //         return next(
+        //             new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
+        //         ); 
+        //     }
+
+        //     // Increment coupon using count
+        //     if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
+        //         coupon.usageCount += item.quantity;
+        //         coupon.save();
+        //     } else {
+        //         return next(
+        //             coupon && new ErrorResponse(`${coupon.code} coupon is not available`, 400)
+        //         ); 
+        //     } 
+        // }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Pre-save hook to increase ticket limit in orders
+orderSchema.pre('save', async function(next) {
+    try {
+
+        if (!this.isModified('orderItems')) {
+            next();
+        }
+
+        const order = this;
+        let coupon;
+
+        if(order.coupon) {
+            coupon = await this.model('Coupon').findById(order.coupon);
+        }
+
         for (const item of order.orderItems) {
             const ticket = await this.model('Ticket').findById(item.ticket);
 
@@ -226,5 +278,26 @@ orderSchema.pre('save', async function(next) {
         next(error);
     }
 });
+
+// Pre-save hook to remove ticket count before delete pending orders
+orderSchema.pre('remove', async function(next) {
+    try{
+        const order = this;
+        
+        if(order.status === 'pending') {
+            for (const item of order.orderItems) {
+                const ticket = await this.model('Ticket').findById(item.ticket);
+    
+                //Remove ticket booking count
+                ticket.bookCount = ticket.bookCount - item.quantity;
+                await ticket.save();
+            }
+        } 
+
+        next();
+    } catch (error) {
+        next(error)
+    }
+})
 
 module.exports = mongoose.model('Order', orderSchema);
