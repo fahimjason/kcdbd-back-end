@@ -14,9 +14,21 @@ const TicketSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a ticket cost']
     },
-    availability: {
+    limit: {
+        type: Number,
+        required: [true, 'Please add the ticket limit number'],
+    },
+    bookCount: { 
+        type: Number, 
+        default: 0 
+    },
+    expiryDate: {
+        type: Date,
+        required: [true, 'Please add the ticket expiry date']
+    },
+    isAvailable: {
         type: Boolean,
-        default: false
+        default: true
     },
     createdAt: {
         type: Date,

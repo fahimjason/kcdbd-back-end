@@ -6,6 +6,7 @@ const orderItemSchema = mongoose.Schema({
     title: { type: String, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
+    discountPercentage: { type: Number, default: 0 },
     ticket: {
         type: mongoose.Schema.ObjectId,
         ref: 'Ticket',
@@ -53,7 +54,11 @@ const orderSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    address:{
+    organization:{
+        type: String,
+        required: true,
+    },
+    designation:{
         type: String,
         required: true,
     },
@@ -76,6 +81,10 @@ const orderSchema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    discount: {
+        type: Number,
+        default: 0
+    },
     total: {
         type: Number,
         required: true,
@@ -85,7 +94,7 @@ const orderSchema = mongoose.Schema({
         enum: ['pending', 'failed', 'paid', 'canceled', 'refunded'],
         default: 'pending',
     },
-    orderItems: [orderItemSchema],
+    orderItems: [{type: orderItemSchema, _id: false}],
     payment_info: {
         pg_service_charge_bdt: String,
         amount_original: String,
@@ -127,11 +136,15 @@ const orderSchema = mongoose.Schema({
         type: Boolean,
         require: [true, 'Please add your consent about the terms & conditions. ']
     },
-    user: {
+    coupon: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
-        required: true,
+        ref: 'Coupon',
     },
+    // user: {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: 'User',
+    //     required: true,
+    // },
     createdAt: {
         type: Date,
         default: Date.now
@@ -149,6 +162,11 @@ orderSchema.pre('save', async function(next) {
 
         let morningCount = 0;
         let afternoonCount = 0;
+        let coupon;
+
+        if(order.coupon) {
+            coupon = await this.model('Coupon').findById(order.coupon);
+        }
 
         for (const workshopId of order.workshop) {
             const workshop = await this.model('Workshop').findById(workshopId);
@@ -177,6 +195,30 @@ orderSchema.pre('save', async function(next) {
         // Check if user already has two active orders for afternoon session
         if (afternoonCount > 1) {
             return next(new ErrorResponse(`One can't take more than one workshop for afternoon session.`, 400));
+        }
+
+        for (const item of order.orderItems) {
+            const ticket = await this.model('Ticket').findById(item.ticket);
+
+            // Increment ticket booking count
+            if(ticket.bookCount + item.quantity <= ticket.limit) {
+                ticket.bookCount += item.quantity;
+                await ticket.save();
+            } else {
+                return next(
+                    new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
+                ); 
+            }
+
+            // Increment coupon using count
+            if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
+                coupon.usageCount += item.quantity;
+                coupon.save();
+            } else {
+                return next(
+                    coupon && new ErrorResponse(`${coupon.code} coupon is not available`, 400)
+                ); 
+            } 
         }
 
         next();

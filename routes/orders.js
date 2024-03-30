@@ -17,11 +17,8 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(protect, advancedResults(Order, {
-            path: 'user',
-            select: 'name email'
-        }), getOrders)
-    .post(protect, addOrder);
+    .get(protect, advancedResults(Order), getOrders)
+    .post(addOrder);
 
 router
     .route('/payment-update')
@@ -29,12 +26,12 @@ router
 
 router
     .route('/payment/:orderId')
-    .get(protect, paymentRequest);
+    .get(paymentRequest);
 
 router
     .route('/:id')
     .get(getOrder)
-    .put(protect, updateOrder)
+    .put(protect, authorize('admin'), updateOrder)
     .delete(protect, authorize('admin'), deleteOrder);
 
 module.exports = router;

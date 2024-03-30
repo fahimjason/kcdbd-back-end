@@ -4,6 +4,8 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
+const { couponValidation } = require('../utils/coupon-validation');
+const { checkTimeExpiration } = require('../utils/time');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -45,9 +47,10 @@ exports.getOrder = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/orders
 // @access    Private
 exports.addOrder = asyncHandler(async (req, res, next) => {
-    req.body.user = req.user.id;
+    // req.body.user = req.user.id;
 
-    const {name, email, phone, track, workshop, tshirt, description, address, cartItems } = req.body;
+    const {name, email, phone, track, workshop, tshirt, description, organization, designation, cartItems } = req.body;
+
 
     if (!cartItems || cartItems.length < 1) {
         return next(
@@ -57,22 +60,45 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
 
     let orderItems = [];
     let subtotal = 0;
+    let discount = 0;
+    let coupon;
+    let couponId;
 
     for (const item of cartItems) {
-            const dbTicket = await Ticket.findById(item.ticket);
+            const ticket = await Ticket.findById(item.ticket);
 
-            if (!dbTicket) {
+            if (!ticket) {
                 return next(
                     new ErrorResponse(`No ticket found with the id of ${item.ticket}`, 404)
                 );
             }
+
+            const { isAvailable, limit, bookCount, expiryDate, title, price, _id } = ticket;
+            const isTicketExpired = checkTimeExpiration(expiryDate);
+            const hasLimit = bookCount < limit; 
+
+            if (!isAvailable || isTicketExpired || !hasLimit) {
+                ticket.isAvailable = false;
+                await ticket.save();
+
+                return next(
+                    new ErrorResponse(`${ticket.title} is not available`, 400)
+                );
+            }
+
     
-            const { title, price, _id } = dbTicket;
+            if (Object.keys(req.query).length) {
+                coupon = await couponValidation(req.query.coupon, _id, next);
+                const discountPercentage = coupon?.discountPercentage / 100 || 0;
+                discount += price * discountPercentage * item.quantity || 0;
+                couponId = coupon?._id;
+            } 
     
             const singleOrderItem = {
+                title,
                 quantity: item.quantity,
-                title: title,
                 price,
+                discountPercentage: coupon?.discountPercentage,
                 ticket: _id,
             };
     
@@ -86,7 +112,7 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
     // calculate total
     const tax = req.body.tax || 0;
     const shippingFee = req.body.shippingFee || 0;
-    const total = tax + shippingFee + subtotal;
+    const total = tax + shippingFee + subtotal - discount;
 
     const order = await Order.create({
         name,
@@ -96,13 +122,16 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
         workshop, 
         tshirt,
         description,
-        address,
+        organization,
+        designation,
         tax,
         shippingFee,
         subtotal,
+        discount,
         total,
         orderItems,
-        user: req.user.id,
+        coupon: couponId,
+        // user: req.user.id,
     });
 
     res.status(200).json({
@@ -162,6 +191,9 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc      Payment
+// @route     GET /api/v1/orders/payment/:orderId
+// @access    Public
 exports.paymentRequest = asyncHandler(async (req, res, next) => {
     const order = await Order.findById(req.params.orderId);
 
@@ -187,16 +219,17 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         tran_id: _id.toString(),
         signature_key: process.env.PAYMENT_SIGNATURE_KEY,
         store_id: process.env.PAYMENT_STORE_ID,
-        currency: 'BDT',
+        currency: process.env.PAYMENT_CURRENCY,
         desc: description,
-        cus_add1: address,
+        // cus_add1: address,
         success_url: process.env.PAYMENT_SUCCESS_URL,
         fail_url: process.env.PAYMENT_SUCCESS_URL,
         cancel_url: process.env.PAYMENT_SUCCESS_URL,
-        type: 'json'
+        type: process.env.PAYMENT_DATA_TYPE
     }
 
     const payment = await axios.post(process.env.PAYMENT_API, paymentData);
+    console.log(payment);
 
     res.status(200).json({
         success: true,
@@ -206,6 +239,9 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc      Update payment
+// @route     POST /api/v1/orders/payment-update
+// @access    Public
 exports.updatePayment = asyncHandler(async (req, res, next) => {
     res.send('Paid');
     const status = req.body.pay_status === 'Successful'  ? 'paid' : 'failed';

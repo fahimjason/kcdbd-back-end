@@ -58,6 +58,8 @@ services:
       PAYMENT_SUCCESS_URL: ${PAYMENT_SUCCESS_URL}
       PAYMENT_FAIL_URL: ${PAYMENT_FAIL_URL}
       PAYMENT_CANCEL_URL: ${PAYMENT_CANCEL_URL}
+      PAYMENT_CURRENCY: ${PAYMENT_CURRENCY}
+      PAYMENT_DATA_TYPE: ${PAYMENT_DATA_TYPE}
     depends_on:
       - mongodb
     restart: always
