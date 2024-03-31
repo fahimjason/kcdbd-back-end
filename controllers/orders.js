@@ -214,9 +214,10 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
             new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
         );
     }
-    if(order.status === 'paid') {
+
+    if(order.status === 'failed') {
         return next(
-            new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
+            new ErrorResponse(`The order with the id of ${req.params.orderId} already processed.`, 400),
         );
     }
 

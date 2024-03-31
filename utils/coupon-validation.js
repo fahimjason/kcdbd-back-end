@@ -17,19 +17,19 @@ const couponValidation = async (code, productId, next) => {
 
     const isMatched = products.includes(productId);
     const isLimitFill =  usageCount >= limit;
-
-    if(!isMatched) {
-        return next(
-            new ErrorResponse(`${code} is an invalid coupon.`, 400)
-        );
-    }
     
     if(!isAvailable || (!isMatched && isLimitFill) || isLimitFill || isExpired) {
         coupon.isAvailable = false;
         await coupon.save();
 
         return next(
-            new ErrorResponse(`${code} is an invalid coupon.`, 400)
+            new ErrorResponse(`${code} is an invalid coupon or expired`, 400)
+        );
+    }
+
+    if(!isMatched) {
+        return next(
+            new ErrorResponse(`${code} is an invalid coupon or expired`, 400)
         );
     }
 
