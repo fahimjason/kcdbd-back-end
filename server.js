@@ -39,6 +39,7 @@ removePendingOrderCronJob();
 
 const app = express();
 
+// Create a writable stream for access logs
 const accessLogStream = fs.createWriteStream(
     path.join(__dirname, 'access.log'),
     { flags: 'a' }

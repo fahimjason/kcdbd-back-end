@@ -1,6 +1,36 @@
-const ErrorResponse = require('../utils/errorResponse');
+const path = require('path');
+const fs = require('fs');
 
-const errorHandler = (err, req, res, next) => {
+const ErrorLog = require('../models/ErrorLog');
+const ErrorResponse = require('../utils/errorResponse'); 
+const { formatDateAsDhaka } = require('../utils/time');
+
+// Create a writable stream for error logs
+const errorLogStream = fs.createWriteStream(
+    path.join(path.dirname(__dirname), 'error.log'),
+    { flags: 'a' }
+);
+
+const errorHandler = async (err, req, res, next) => {
+    // Log timestamp in server time (UTC) and in "Asia/Dhaka" time zone
+    const serverTimestamp = new Date().toISOString();
+    const dhakaTimestamp = formatDateAsDhaka();
+    const errorMessage = err.stack;
+
+    // Log the error message to the error log stream with timestamps
+    if(process.env.NODE_ENV === 'production') {
+        errorLogStream.write(`Server Time (UTC): ${serverTimestamp} | Dhaka Time: ${dhakaTimestamp}\n`);
+        errorLogStream.write(`${errorMessage}\n`);
+
+        const errorLog = new ErrorLog({
+            timestamp_utc: serverTimestamp,
+            timestamp_dhaka: dhakaTimestamp,
+            error_message: errorMessage
+        });
+        
+        await errorLog.save();
+    }
+
     let error = { ...err };
 
     error.message = err.message;
