@@ -30,6 +30,8 @@ const tickets = require('./routes/tickets');
 const orders = require('./routes/orders');
 const workshops = require('./routes/workshops');
 const participants = require('./routes/participants');
+const schedules = require('./routes/schedules');
+
 const removePendingOrderCronJob = require('./cron-jobs');
 
 // Start cron job to remove pending orders
@@ -97,6 +99,7 @@ app.use('/api/v1/tickets', tickets);
 app.use('/api/v1/orders', orders);
 app.use('/api/v1/workshops', workshops);
 app.use('/api/v1/participants', participants);
+app.use('/api/v1/schedules', schedules);
 
 app.use(errorHandler);
 
