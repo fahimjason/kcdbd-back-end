@@ -6,6 +6,9 @@ const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
 const { couponValidation } = require('../utils/coupon-validation');
 const { checkTimeExpiration } = require('../utils/time');
+const sendEmail = require('../utils/sendEmail');
+const generateInvoice = require('../utils/invoice');
+const { formatDateAsDhaka } = require('../utils/time');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -246,14 +249,71 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         order.status = 'paid';
         await order.save();
 
-        res.status(200).send(`
-            Dear ${order.name},
+        const htmlEmail = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Response</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body>
+        <div class="container">
+            <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center">Payment Response</h4>
+                </div>
+                <div class="card-body">
+                    <p>Dear ${order.name},</p>
+                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.</p>
+                    <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
+                    <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </body>
+        </html>
+        `;
 
-            Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.
+        try {
+            const orderDetails = {
+                name: order.name,
+                mobile: order.phone.number,
+                orderId: order._id,
+                date: formatDateAsDhaka(),
+                items: order.orderItems,
+                subtotal: order.subtotal,
+                vat: order.vat || 0,
+                tax: order.tax,
+                discount: order.discount,
+                total: order.total
+            };
+    
+            const invoice = `invoice_${order._id}.pdf`;
             
-            Best regards,
-            KCD Dhaka 2024 Organizing Team
-        `);
+            // Generate PDF invoice
+            await generateInvoice(orderDetails, `${process.env.FILE_UPLOAD_PATH}/invoices/${invoice}`);
+        
+            await sendEmail({
+                email: order.email,
+                subject: 'KCD Payment Information',
+                htmlEmail,
+                invoice
+            });     
+        
+
+            res.send(htmlEmail);
+            // res.status(200).json({ success: true, data: 'Email sent' });
+        } catch (err) {
+            console.log(err);
+        
+            return next(new ErrorResponse('Email could not be sent', 500));
+        }
     }
 });
 
@@ -269,15 +329,101 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
     await order.save();
 
     if(status === 'paid') {
-        res.status(200).send(`
-            Dear ${order.name},
+        const htmlEmail = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Response</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body>
+        <div class="container">
+            <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center">Payment Response</h4>
+                </div>
+                <div class="card-body">
+                    <p>Dear ${order.name},</p>
+                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.</p>
+                    <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
+                    <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </body>
+        </html>
+        `;
 
-            Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.
+        try {
+            const orderDetails = {
+                name: order.name,
+                mobile: order.phone.number,
+                orderId: order._id,
+                date: formatDateAsDhaka(),
+                items: order.orderItems,
+                subtotal: order.subtotal,
+                vat: order.vat || 0,
+                tax: order.tax,
+                discount: order.discount,
+                total: order.total
+            };
+    
+            const invoice = `invoice_${order._id}.pdf`;
             
-            Best regards,
-            KCD Dhaka 2024 Organizing Team
-        `);
+            // Generate PDF invoice
+            await generateInvoice(orderDetails, `${process.env.FILE_UPLOAD_PATH}/invoices/${invoice}`);
+        
+            await sendEmail({
+                email: order.email,
+                subject: 'KCD Payment Information',
+                htmlEmail,
+                invoice
+            });     
+        
+            res.send(htmlEmail);
+        } catch (err) {
+            console.log(err);
+        
+            return next(new ErrorResponse('Email could not be sent', 500));
+        }
     } else {
-        res.send('Order Failed, please try again');
+        const htmlEmail = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Response</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body>
+        <div class="container">
+            <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center">Payment Response</h4>
+                </div>
+                <div class="card-body">
+                    <p>Dear ${order.name},</p>
+                    <p>Unfortunately! Your payment for KCD Dhaka 2024 has been failed. Thank you for your effort and time. You can try again.</p>
+                    <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
+                    <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </body>
+        </html>
+        `;
+
+        res.send(htmlEmail);
     }
 });

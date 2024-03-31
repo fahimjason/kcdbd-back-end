@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 
 const sendEmail = async options => {
     const transporter = nodemailer.createTransport({
@@ -10,11 +11,20 @@ const sendEmail = async options => {
         }
     });
 
+    let pdfAttachment = fs.readFileSync(`${process.env.FILE_UPLOAD_PATH}/invoices/${options.invoice}`);
+
     const message = {
         from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
         to: options.email,
         subject: options.subject,
-        text: options.message
+        html: options.htmlEmail,
+        attachments: [
+            {
+                filename: options.invoice,
+                content: pdfAttachment,
+                encoding: 'base64'
+            }
+        ]
     };
 
     const info = await transporter.sendMail(message);
