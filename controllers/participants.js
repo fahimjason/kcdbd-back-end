@@ -31,6 +31,7 @@ exports.createParticipant = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
     const participant = new Participant(req.body);
+    await participant.save();
 
     if (req.files) {
         const file = fileUploader(req, participant._id, next);
