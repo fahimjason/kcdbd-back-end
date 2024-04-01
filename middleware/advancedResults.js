@@ -50,7 +50,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     const results = await query;
 
     // Pagination result
-    const pagination = {};
+    const pagination = { total };
 
     if (endIndex < total) {
         pagination.next = {
