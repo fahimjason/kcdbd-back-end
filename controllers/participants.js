@@ -30,7 +30,6 @@ exports.getParticipant = asyncHandler(async (req, res, next) => {
 exports.createParticipant = asyncHandler(async (req, res, next) => {
     req.body.user = req.user.id;
 
-    console.log(req.body)
     const participant = new Participant(req.body);
 
     if (req.files) {
