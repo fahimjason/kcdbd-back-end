@@ -233,8 +233,8 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
             currency: process.env.PAYMENT_CURRENCY,
             desc: 'KCD Payment',
             success_url: process.env.PAYMENT_SUCCESS_URL,
-            fail_url: process.env.PAYMENT_SUCCESS_URL,
-            cancel_url: process.env.PAYMENT_SUCCESS_URL,
+            fail_url: process.env.PAYMENT_FAIL_URL,
+            cancel_url: process.env.PAYMENT_CANCEL_URL,
             type: process.env.PAYMENT_DATA_TYPE
         }
     

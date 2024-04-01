@@ -105,14 +105,13 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
 // @access    Public
 exports.applyCoupon = asyncHandler(async (req, res, next) => {
     const coupon = await couponValidation(req.params.coupon, req.params.productId, next);
-    const {code, discountPercentage, isAvailable} = coupon;
     
     res.status(200).json({
         success: true,
         data: {
-            code,
-            discountPercentage,
-            isAvailable
+            code: coupon.code,
+            discountPercentage: coupon.discountPercentage,
+            isAvailable: coupon.isAvailable
         }
     });
 });

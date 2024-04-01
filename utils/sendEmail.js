@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 
+const ErrorResponse = require('../utils/errorResponse');
+
 const sendEmail = async options => {
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -48,7 +50,7 @@ const sendEmail = async options => {
         }
 
         if (!pdfAttachment) {
-            throw new Error(`Failed to read PDF file: ${options.invoice}`);
+            return new ErrorResponse(`Failed to read PDF file: ${options.invoice}`);
         }
 
         const base64Pdf = pdfAttachment.toString('base64');
