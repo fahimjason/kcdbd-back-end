@@ -1,0 +1,50 @@
+[
+    {
+        "_id": "66084e3e0681cc6ba9a65ca4",
+        "title": "Professional Standard",
+        "description": "Professional ticket",
+        "price": 2000,
+        "ticketType": "professional",
+        "limit": 70,
+        "bookCount": 0,
+        "expiryDate": "2024-04-04T17:39:09.294Z",
+        "isAvailable": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "_id": "66084e0f0681cc6ba9a65c9f",
+        "title": "Student Standard",
+        "description": "Student ticket",
+        "price": 1500,
+        "ticketType": "student",
+        "limit": 70,
+        "bookCount": 0,
+        "expiryDate": "2024-04-04T17:38:23.509Z",
+        "isAvailable": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "_id": "66084dcf0681cc6ba9a65c94",
+        "title": "Professional (Early Bird)",
+        "description": "Professional ticket",
+        "price": 1500,
+        "ticketType": "professional",
+        "limit": 30,
+        "bookCount": 0,
+        "expiryDate": "2024-04-04T17:41:47.810Z",
+        "isAvailable": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "_id": "66084ccc0681cc6ba9a65c7e",
+        "title": "Student (Early Bird)",
+        "description": "Student ticket",
+        "price": 1000,
+        "ticketType": "student",
+        "limit": 30,
+        "bookCount": 0,
+        "expiryDate": "2024-04-04T17:35:58.403Z",
+        "isAvailable": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    }
+]

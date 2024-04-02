@@ -1,0 +1,18 @@
+[
+    {
+        "_id": "66085525f9f71ad9f597db1f",
+        "code": "Kodekloud-kPAe",
+        "discountPercentage": 20,
+        "limit": 10,
+        "usageCount": 0,
+        "products": [
+            "66084ccc0681cc6ba9a65c7e"
+        ],
+        "description": "This coupon will be used by Kodekloud users",
+        "expiryDate": "2024-04-04T18:41:02.526Z",
+        "isAvailable": true,
+        "users": [],
+        "user": "5d7a514b5d2c12c7449be042",
+        "createdAt": "2024-03-30T18:08:37.540Z"
+    }
+]

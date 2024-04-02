@@ -1,0 +1,38 @@
+[
+    {
+        "title": "Deploy an application in Kubernetes using Argo CD and GitOps",
+        "description": "Kubernetes and CI/CD workshop",
+        "limit": 30,
+        "level": "intermediate",
+        "sessionTime": "morning",
+        "availability": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "title": "Cloud Native Essentials for Beginners",
+        "description": "Could foundation workshop",
+        "limit": 30,
+        "level": "beginner",
+        "sessionTime": "morning",
+        "availability": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "title": "Kubernetes Multi-Cluster Monitoring",
+        "description": "Performance monitoring workshop",
+        "limit": 30,
+        "level": "intermediate",
+        "sessionTime": "afternoon",
+        "availability": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "title": "Tracing the Future: Kubernetes and Microservices in Action",
+        "description": "Microservices tracing workshop",
+        "limit": 30,
+        "level": "intermediate",
+        "sessionTime": "afternoon",
+        "availability": true,
+        "user": "5d7a514b5d2c12c7449be042"
+    }
+]
