@@ -30,7 +30,7 @@ async function generateInvoice(orderDetails, outputPath) {
     // Order Information
     doc.font('Helvetica-Bold').fontSize(12).fillColor('#333').text('Order Information:');
     doc.font('Helvetica').fontSize(10);
-    doc.text(`Participant ID: ${orderDetails.orderId}`, { continued: true });
+    doc.text(`Order ID: ${orderDetails.orderId}`, { continued: true });
     doc.text(`Name: ${orderDetails.name}`, { align: 'right' });
     doc.text(`Date: ${orderDetails.date}`, { continued: true });
     doc.text(`Mobile: ${orderDetails.mobile}`, { align: 'right' });

@@ -269,7 +269,7 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
                 </div>
                 <div class="card-body">
                     <p>Dear ${order.name},</p>
-                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.</p>
+                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation order invoice has been attached to your email. Your <b>Order ID(${order._id})</b> will serve as your unique identifier. <b>Please keep this soft copy of the Order ID for reference on the event day.</b></p>
                     <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
                     <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
                 </div>
@@ -349,7 +349,7 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
                 </div>
                 <div class="card-body">
                     <p>Dear ${order.name},</p>
-                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation has been sent to your email address.</p>
+                    <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation order invoice has been attached to your email. Your <b>Order ID(${order._id})</b> will serve as your unique identifier. <b>Please keep this soft copy of the Order ID for reference on the event day.</b></p>
                     <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
                     <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
                 </div>
