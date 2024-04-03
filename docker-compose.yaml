@@ -1,22 +1,22 @@
 version: "3.9"
 services:
   # Frontend =======================
-  client:
-    container_name: client
-    # Build the Dockerfile from the current directory
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    # Expose port 3000
-    ports:
-      - "3001:3000"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_URL=https://api.kcddhaka.org/api/v1/
-    depends_on:
-      - mongodb
-      - backend
-    restart: always
+  # client:
+  #   container_name: client
+  #   # Build the Dockerfile from the current directory
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   # Expose port 3000
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - REACT_APP_URL=https://api.kcddhaka.org/api/v1/
+  #   depends_on:
+  #     - mongodb
+  #     - backend
+  #   restart: always
 
   # Backend ======================
   backend:
@@ -60,6 +60,8 @@ services:
       PAYMENT_CANCEL_URL: ${PAYMENT_CANCEL_URL}
       PAYMENT_CURRENCY: ${PAYMENT_CURRENCY}
       PAYMENT_DATA_TYPE: ${PAYMENT_DATA_TYPE}
+
+      REDIRECT_URL: ${REDIRACT_URL}
     depends_on:
       - mongodb
     restart: always
