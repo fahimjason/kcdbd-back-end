@@ -13,7 +13,7 @@ const Coupon = require('./models/Coupon');
 const Workshop = require('./models/Workshop');
 
 // Connect to DB
-mongoose.connect(process.env.MONGO_URI_PROD, {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
