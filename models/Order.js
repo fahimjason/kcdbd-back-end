@@ -139,6 +139,9 @@ const OrderSchema = mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Coupon',
     },
+    invoice: {
+        type: String,
+    },
     // user: {
     //     type: mongoose.Schema.ObjectId,
     //     ref: 'User',

@@ -1,4 +1,5 @@
 const axios = require('axios').default;
+const fs = require('fs');
 
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -9,6 +10,8 @@ const { checkTimeExpiration } = require('../utils/time');
 const sendEmail = require('../utils/sendEmail');
 const generateInvoice = require('../utils/invoice');
 const { formatDateAsDhaka } = require('../utils/time');
+const { uploadInS3, uploadToS3 } = require('../utils/s3');
+const { getContentType } = require('../utils/file-upload');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -296,20 +299,44 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
                 total: order.total
             };
     
+            const invoicePath = `${process.env.FILE_UPLOAD_PATH}/invoices`
             const invoice = `invoice_${order._id}.pdf`;
             
             // Generate PDF invoice
-            await generateInvoice(orderDetails, `${process.env.FILE_UPLOAD_PATH}/invoices/${invoice}`);
+            const generatedInvoicePath = await generateInvoice(orderDetails, `${invoicePath}/${invoice}`);
         
-            await sendEmail({
+            // Read the generated PDF file
+            const pdfAttachment = fs.readFileSync(generatedInvoicePath);
+
+            // Send email with attachment
+            const options = {
                 email: order.email,
                 subject: 'KCD Payment Information',
                 htmlEmail,
                 invoice
-            });     
+            }
         
+            await sendEmail(options, pdfAttachment);   
+    
+            const contentType = getContentType(generatedInvoicePath);
+
+            // Upload to S3
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `invoices/${invoice}`,
+                Body: pdfAttachment,
+                ContentType: contentType,
+            };
+
+            const s3UploadData =  await uploadToS3(params, next);
+
+            order.invoice = s3UploadData.key;
+            await order.save();
+
+            fs.unlinkSync(generatedInvoicePath);
 
             res.send(htmlEmail);
+            
             // res.status(200).json({ success: true, data: 'Email sent' });
         } catch (err) {
             console.log(err);
@@ -377,17 +404,41 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
                 total: order.total
             };
     
+            const invoicePath = `${process.env.FILE_UPLOAD_PATH}/invoices`
             const invoice = `invoice_${order._id}.pdf`;
             
             // Generate PDF invoice
-            await generateInvoice(orderDetails, `${process.env.FILE_UPLOAD_PATH}/invoices/${invoice}`);
+            const generatedInvoicePath = await generateInvoice(orderDetails, `${invoicePath}/${invoice}`);
         
-            await sendEmail({
+            // Read the generated PDF file
+            const pdfAttachment = fs.readFileSync(generatedInvoicePath);
+
+            // Send email with attachment
+            const options = {
                 email: order.email,
                 subject: 'KCD Payment Information',
                 htmlEmail,
                 invoice
-            });     
+            }
+        
+            await sendEmail(options, pdfAttachment);   
+    
+            const contentType = getContentType(generatedInvoicePath);
+
+            // Upload to S3
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `invoices/${invoice}`,
+                Body: pdfAttachment,
+                ContentType: contentType,
+            };
+
+            const s3UploadData =  await uploadToS3(params, next);
+
+            order.invoice = s3UploadData.key;
+            await order.save();
+
+            fs.unlinkSync(generatedInvoicePath);
         
             res.send(htmlEmail);
         } catch (err) {
