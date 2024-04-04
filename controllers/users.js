@@ -4,7 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 const { fileUploader } = require('../utils/file-upload');
-const { uploadInS3 } = require('../utils/s3');
+const { uploadToS3, removeFromS3 } = require('../utils/s3');
 
 // @desc      Get all users
 // @route     GET /api/v1/auth/users
@@ -125,16 +125,16 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
         ContentType: file.mimetype
     };
 
-    const s3UploadData = await uploadInS3(params, next);
+    const s3UploadData = await uploadToS3(params, next);
 
     // Remove previous photo if exists
     if (user.photo) {
         const deleteParams = {
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key: participant.photo 
+            Key: user.photo 
         };
 
-        await S3Remove(deleteParams, next);
+        await removeFromS3(deleteParams, next);
     }
 
     await User.findByIdAndUpdate(req.params.id, { photo: s3UploadData.key });

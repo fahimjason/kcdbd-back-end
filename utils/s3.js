@@ -8,7 +8,7 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-exports.uploadInS3 = async (params, next) => {
+exports.uploadToS3 = async (params, next) => {
     try {
         const data = await s3.upload(params).promise();
 
@@ -27,5 +27,15 @@ exports.removeFromS3 = async (params, next) => {
     } catch (err) {
         console.error(err);
         next(err);
+    }
+};
+
+exports.readFromS3 = async (params) => {
+    try {
+        const data = await s3.getObject(params).promise();
+        return data.Body;
+    } catch (error) {
+        console.error("Error reading from S3:", error);
+        throw error;
     }
 };

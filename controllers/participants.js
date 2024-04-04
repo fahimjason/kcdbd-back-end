@@ -4,7 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Participant = require('../models/Participant');
 const { fileUploader } = require('../utils/file-upload');
-const { uploadInS3, removeFromS3 } = require('../utils/s3');
+const { uploadToS3, removeFromS3 } = require('../utils/s3');
 
 // @desc      Get all users
 // @route     GET /api/v1/participants
@@ -44,7 +44,7 @@ exports.createParticipant = asyncHandler(async (req, res, next) => {
             ContentType: file.mimetype
         };
     
-        const s3UploadData = await uploadInS3(params, next);
+        const s3UploadData = await uploadToS3(params, next);
 
         // file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
         //     if (err) {
@@ -141,7 +141,7 @@ exports.participantPhotoUpload = asyncHandler(async (req, res, next) => {
         ContentType: file.mimetype
     };
 
-    const s3UploadData = await uploadInS3(params, next);
+    const s3UploadData = await uploadToS3(params, next);
 
     // Remove previous photo if exists
     if (participant.photo) {
