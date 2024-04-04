@@ -1,22 +1,22 @@
 version: "3.9"
 services:
   # Frontend =======================
-  client:
-    container_name: client
-    # Build the Dockerfile from the current directory
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    # Expose port 3000
-    ports:
-      - "3001:3000"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_URL=https://api.kcddhaka.org/api/v1/
-    depends_on:
-      - mongodb
-      - backend
-    restart: always
+  # client:
+  #   container_name: client
+  #   # Build the Dockerfile from the current directory
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   # Expose port 3000
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - REACT_APP_URL=https://api.kcddhaka.org/api/v1/
+  #   depends_on:
+  #     - mongodb
+  #     - backend
+  #   restart: always
 
   # Backend ======================
   backend:
@@ -35,6 +35,11 @@ services:
       DB_NAME: ${DB_NAME}
       FILE_UPLOAD_PATH: ${FILE_UPLOAD_PATH}
       MAX_FILE_UPLOAD: ${MAX_FILE_UPLOAD}
+
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      CDN: ${CDN}
 
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRE: ${JWT_EXPIRE}
@@ -60,6 +65,8 @@ services:
       PAYMENT_CANCEL_URL: ${PAYMENT_CANCEL_URL}
       PAYMENT_CURRENCY: ${PAYMENT_CURRENCY}
       PAYMENT_DATA_TYPE: ${PAYMENT_DATA_TYPE}
+
+      REDIRECT_URL: ${REDIRACT_URL}
     depends_on:
       - mongodb
     restart: always

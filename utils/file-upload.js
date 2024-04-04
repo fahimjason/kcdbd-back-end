@@ -24,3 +24,15 @@ exports.fileUploader = (req, id, next) => {
 
     return file;
 };
+
+// Function to get ContentType based on file extension
+exports.getContentType = (filePath) => {
+    const extname = path.extname(filePath).toLowerCase();
+    switch (extname) {
+        case '.pdf':
+            return 'application/pdf';
+        
+        default:
+            return 'application/octet-stream'; // Default to binary data
+    }
+};

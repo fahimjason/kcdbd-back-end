@@ -4,6 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 const { fileUploader } = require('../utils/file-upload');
+const { uploadToS3, removeFromS3 } = require('../utils/s3');
 
 // @desc      Get all users
 // @route     GET /api/v1/auth/users
@@ -117,25 +118,29 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
 
     const file = fileUploader(req, user._id, next);
 
+    const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: `images/user_${file.name}`,
+        Body: file.data,
+        ContentType: file.mimetype
+    };
+
+    const s3UploadData = await uploadToS3(params, next);
+
     // Remove previous photo if exists
     if (user.photo) {
-        const previousPhotoPath = `${process.env.FILE_UPLOAD_PATH}/${user.photo}`;
-        if (fs.existsSync(previousPhotoPath)) {
-            fs.unlinkSync(previousPhotoPath);
-        }
+        const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: user.photo 
+        };
+
+        await removeFromS3(deleteParams, next);
     }
 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/uploads/${file.name}`, async err => {
-        if (err) {
-            console.error(err);
-            return next(new ErrorResponse(`Problem with file upload`, 500));
-        }
+    await User.findByIdAndUpdate(req.params.id, { photo: s3UploadData.key });
 
-        await User.findByIdAndUpdate(req.params.id, { photo: `uploads/${file.name}` });
-
-        res.status(200).json({
-            success: true,
-            data: file.name
-        });
+    res.status(200).json({
+        success: true,
+        data: s3UploadData.key
     });
 });
