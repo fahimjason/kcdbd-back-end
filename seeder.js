@@ -11,6 +11,7 @@ const User = require('./models/User');
 const Ticket = require('./models/Ticket');
 const Coupon = require('./models/Coupon');
 const Workshop = require('./models/Workshop');
+const Participant = require('./models/Participant');
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -35,6 +36,11 @@ const workshops = JSON.parse(
     fs.readFileSync(`${__dirname}/_data/workshops.json`, 'utf-8')
 );
 
+const participants = JSON.parse(
+    fs.readFileSync(`${__dirname}/_data/participants.json`, 'utf-8')
+);
+
+
 // Import into DB
 const importData = async () => {
     try {
@@ -42,6 +48,7 @@ const importData = async () => {
         await Ticket.create(tickets);
         await Coupon.create(coupons);
         await Workshop.create(workshops);
+        await Participant.create(participants);
         console.log('Data Imported...'.green.inverse);
         process.exit();
     } catch (err) {
@@ -56,6 +63,7 @@ const deleteData = async () => {
         await Ticket.deleteMany();
         await Coupon.deleteMany();
         await Workshop.deleteMany();
+        await Participant.deleteMany();
         console.log('Data Destroyed...'.red.inverse);
         process.exit();
     } catch (err) {
