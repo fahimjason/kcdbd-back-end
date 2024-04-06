@@ -6,7 +6,8 @@ const {
     updateOrder,
     deleteOrder,
     paymentRequest,
-    updatePayment
+    updatePayment,
+    orderSummary
 } = require('../controllers/orders');
 
 const Order = require('../models/Order');
@@ -17,7 +18,7 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(protect, advancedResults(Order), getOrders)
+    .get(protect, advancedResults(Order, 'workshop'), getOrders)
     .post(addOrder);
 
 router
