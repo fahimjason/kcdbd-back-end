@@ -1,0 +1,83 @@
+[
+    {
+        "name": "Reasad Amin Shamrat",
+        "designation": "Senior System Administrator, Cloud Operations",
+        "organization": "Therap (BD) Ltd",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Abdullah Al Reza",
+        "designation": "Senior DevOps Engineer",
+        "organization": "Nifty Coders",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Jasim Alam",
+        "designation": "Senior DevOps Engineer",
+        "organization": " Astha IT",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Al-Amin Talukdar",
+        "designation": "DevOps Engineer, CHEQ",
+        "organization": "Lifestyle",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Mohammad Abdul Aziz",
+        "designation": "Lead DevOps Engineer",
+        "organization": "Brainstation 23 Limited",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Md Nasir Uddin",
+        "designation": "DevOps Engineer, Manager",
+        "organization": "Anwar Enterprise Systems (AES)",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Md Farhad Hasan Khan",
+        "designation": "Senior Architect-Infrastructure",
+        "organization": "GrameenPhone Ltd.",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Md Arif Hossen",
+        "designation": "Technical Cloud Architect Consultant",
+        "organization": "Banglalink",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "Amir Hossain",
+        "designation": "Head of SecDevOps & Cloud Engineering",
+        "organization": "BJIT Ltd",
+        "role": "organizer",
+        "sponsor_status": "",
+        "sponsor_link": "https://www.linkedin.com/in/ahshohag/",
+        "user": "5d7a514b5d2c12c7449be042"
+    },
+    {
+        "name": "MD Shahriyar Al Mustakim Mitul",
+        "designation": "Lead Organizer",
+        "organization": "Cloud Native Dhaka, CNCF Ambassador",
+        "role": "organizer",
+        "sponsor_status": "",
+        "user": "5d7a514b5d2c12c7449be042"
+    }
+]
