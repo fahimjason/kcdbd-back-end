@@ -16,7 +16,7 @@ const router = express.Router({ mergeParams: true });
 router
     .route('/')
     .get(
-        advancedResults(Workshop), getWorkshops)
+        advancedResults(Workshop, 'speakers'), getWorkshops)
     .post(protect, authorize('organizer', 'admin'), addWorkshop);
 
 router
