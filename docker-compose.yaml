@@ -48,7 +48,7 @@ services:
       PAYMENT_CURRENCY: ${PAYMENT_CURRENCY}
       PAYMENT_DATA_TYPE: ${PAYMENT_DATA_TYPE}
 
-      REDIRECT_URL: ${REDIRACT_URL}
+      REDIRECT_URL: ${REDIRECT_URL}
     depends_on:
       - mongodb
     restart: always
