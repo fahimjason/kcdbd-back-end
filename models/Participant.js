@@ -32,6 +32,7 @@ const ParticipantSchema = new mongoose.Schema({
         enum: ['organizer', 'sponsor', 'speaker', 'key-note-speaker', 'event-speaker', 'volunteer'],
         required: true
     },
+    speaking_topic: String,
     sponsor_status: {
         type: String,
         enum: ['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', ''],
