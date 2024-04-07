@@ -22,6 +22,10 @@ router
     .post(addOrder);
 
 router
+    .route('/summary')
+    .get(protect, authorize('admin'), orderSummary);
+
+router
     .route('/payment-update')
     .post(updatePayment);
 
