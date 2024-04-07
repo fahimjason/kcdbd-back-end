@@ -31,6 +31,12 @@ const WorkshopSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    speakers: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Participant',
+        }
+    ],
     createdAt: {
         type: Date,
         default: Date.now
