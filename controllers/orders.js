@@ -241,7 +241,11 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
             type: process.env.PAYMENT_DATA_TYPE
         }
 
+        try {
         const payment = await axios.post(process.env.PAYMENT_API, paymentData);
+
+        order.status = 'initiated';
+        await order.save();
 
         res.status(200).json({
             success: true,
@@ -249,9 +253,18 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
                 payment_url: payment.data.payment_url
             }
         });
+        } catch (err) {
+            return next(new ErrorResponse(err));
+        }
     } else {
         order.status = 'paid';
         await order.save();
+
+        for (const item of order.orderItems) {
+            const ticket = await Ticket.findById(item.ticket);
+            ticket.bookCount += item.quantity;
+            await ticket.save();
+        }
 
         const htmlEmail = `
         <!DOCTYPE html>
@@ -358,6 +371,12 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
     await order.save();
 
     if (status === 'paid') {
+        for (const item of order.orderItems) {
+            const ticket = await Ticket.findById(item.ticket);
+            ticket.bookCount += item.quantity;
+            await ticket.save();
+        }
+        
         const htmlEmail = `
         <!DOCTYPE html>
         <html lang="en">
