@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const ErrorResponse = require('../utils/errorResponse');
-const { error } = require('console');
 
 const orderItemSchema = mongoose.Schema({
     title: { type: String, required: true },
@@ -90,7 +89,7 @@ const OrderSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'failed', 'paid', 'canceled', 'refunded'],
+        enum: ['pending', 'initiated', 'failed', 'paid', 'canceled', 'refunded'],
         default: 'pending',
     },
     orderItems: [{type: orderItemSchema, _id: false}],
@@ -224,14 +223,11 @@ OrderSchema.pre('save', async function(next) {
             const ticket = await this.model('Ticket').findById(item.ticket);
 
             // Increment ticket booking count
-            if(ticket.bookCount + item.quantity <= ticket.limit) {
-                ticket.bookCount += item.quantity;
-                await ticket.save();
-            } else {
+            if(ticket.bookCount + item.quantity > ticket.limit) {
                 return next(
                     new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
                 ); 
-            }
+            } 
 
             // Increment coupon using count
             if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
