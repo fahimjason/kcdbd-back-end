@@ -252,13 +252,13 @@ OrderSchema.pre('remove', async function(next) {
         const order = this;
         
         if(order.status === 'pending') {
-            for (const item of order.orderItems) {
-                const ticket = await this.model('Ticket').findById(item.ticket);
+            // for (const item of order.orderItems) {
+            //     const ticket = await this.model('Ticket').findById(item.ticket);
     
-                //Remove ticket booking count
-                ticket.bookCount = ticket.bookCount - item.quantity;
-                await ticket.save();
-            }
+            //     //Remove ticket booking count
+            //     ticket.bookCount = ticket.bookCount - item.quantity;
+            //     await ticket.save();
+            // }
         } 
 
         next();
