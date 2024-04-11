@@ -134,6 +134,7 @@ const OrderSchema = mongoose.Schema({
         type: Boolean,
         require: [true, 'Please add your consent about the terms & conditions. ']
     },
+    payment_url: String,
     coupon: {
         type: mongoose.Schema.ObjectId,
         ref: 'Coupon',

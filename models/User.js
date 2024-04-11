@@ -18,9 +18,9 @@ const UserSchema = new mongoose.Schema({
         ]
     },
     mobile: {
-        type: String, 
+        type: String,
         trim: true,
-        required: [true, 'Please provide a valid mobile number'], 
+        required: [true, 'Please provide a valid mobile number'],
         unique: true,
         minlength: 11,
         maxlength: 14,
@@ -79,6 +79,14 @@ UserSchema.pre('save', async function (next) {
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Encrypt password using bcrypt while updating (admin)
+UserSchema.pre("findOneAndUpdate", async function (next) {
+    if (this._update.password) {
+        this._update.password = await bcrypt.hash(this._update.password, 10);
+    }
+    next();
 });
 
 // Sign JWT and return

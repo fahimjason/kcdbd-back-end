@@ -245,6 +245,7 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         const payment = await axios.post(process.env.PAYMENT_API, paymentData);
 
         order.status = 'initiated';
+        order.payment_url = payment.data.payment_url;
         await order.save();
 
         res.status(200).json({
