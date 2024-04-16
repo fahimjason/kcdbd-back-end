@@ -7,7 +7,7 @@ const { couponValidation } = require('../utils/coupon-validation');
 
 // @desc      Get coupons
 // @route     GET /api/v1/coupons
-// @access    Public
+// @access    Private
 exports.getCoupons = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedResults);
 });
@@ -63,14 +63,14 @@ exports.updateCoupon = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`User ${req.user.id} is not authorized to update coupon ${course._id}`, 401));
     }
 
-    ticket = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
+    coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
 
     res.status(200).json({
         success: true,
-        data: ticket
+        data: coupon
     });
 });
 
@@ -92,7 +92,7 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete course ${course._id}`, 401));
     }
 
-    await Coupon.remove();
+    await coupon.remove();
 
     res.status(200).json({
         success: true,

@@ -15,8 +15,8 @@ exports.getSchedules = asyncHandler(async (req, res, next) => {
 exports.getSchedule = asyncHandler(async (req, res, next) => {
     const schedule = await Schedule.findById(req.params.id)
         .populate({
-            path: 'speaker',
-            select: 'name designation organization linkedin'
+            path: 'speakers',
+            select: 'name designation organization linkedin photo'
         });
 
     if (!schedule) {

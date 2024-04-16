@@ -17,10 +17,12 @@ const ScheduleSchema = new mongoose.Schema({
         enum: ['keynote-track', 'devops-track', 'security-track', 'startup-community-hub'],
         required: [true, 'Please add a schedule track']
     },
-    speaker: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Participant',
-    },
+    speakers: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Participant',
+        }
+    ],
     createdAt: {
         type: Date,
         default: Date.now
