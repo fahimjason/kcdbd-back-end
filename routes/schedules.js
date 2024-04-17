@@ -17,7 +17,7 @@ router
     .route('/')
     .get(advancedResults(Schedule, {
         path: 'speakers',
-        select: 'name designation organization linkedin photo'
+        select: 'name designation organization linkedin sponsor_link photo'
     }), getSchedules)
     .post(protect, authorize('organizer', 'admin'), addSchedule);
 
