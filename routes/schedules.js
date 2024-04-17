@@ -16,8 +16,8 @@ const router = express.Router({ mergeParams: true });
 router
     .route('/')
     .get(advancedResults(Schedule, {
-        path: 'speaker',
-        select: 'name designation organization linkedin'
+        path: 'speakers',
+        select: 'name designation organization linkedin sponsor_link photo'
     }), getSchedules)
     .post(protect, authorize('organizer', 'admin'), addSchedule);
 
