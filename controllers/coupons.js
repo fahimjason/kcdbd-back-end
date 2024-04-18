@@ -101,17 +101,19 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Apply coupon
-// @route     GET /api/v1/coupons/apply-coupon/:coupon
+// @route     GET /api/v1/coupons/apply/:coupon/:productId
 // @access    Public
 exports.applyCoupon = asyncHandler(async (req, res, next) => {
     const coupon = await couponValidation(req.params.coupon, req.params.productId, next);
     
-    res.status(200).json({
-        success: true,
-        data: {
-            code: coupon.code,
-            discountPercentage: coupon.discountPercentage,
-            isAvailable: coupon.isAvailable
-        }
-    });
+    if(coupon) {
+        res.status(200).json({
+            success: true,
+            data: {
+                code: coupon.code,
+                discountPercentage: coupon.discountPercentage,
+                isAvailable: coupon.isAvailable
+            }
+        });
+    }
 });
