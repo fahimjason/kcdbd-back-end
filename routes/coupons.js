@@ -11,6 +11,7 @@ const {
 const Coupon = require('../models/Coupon');
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
+const { path } = require('pdfkit');
 
 const router = express.Router({ mergeParams: true });
 
@@ -23,7 +24,13 @@ router.use(authorize('organizer', 'admin'));
 
 router
     .route('/')
-    .get(advancedResults(Coupon, 'orders'), getCoupons)
+    .get(advancedResults(Coupon, [
+        {
+            path: 'products',
+            select: '_id, title'
+        },
+        'orders'
+    ]), getCoupons)
     .post(addCoupon);
 
 router

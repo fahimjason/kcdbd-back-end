@@ -16,7 +16,14 @@ exports.getCoupons = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/coupons/:id
 // @access    Public
 exports.getCoupon = asyncHandler(async (req, res, next) => {
-    const coupon = await Coupon.findById(req.params.id);
+    const coupon = await Coupon.findById(req.params.id)
+    .populate(
+        {
+            path: 'products',
+            select: '_id, title'
+        },        
+    )
+    .populate('orders');
 
     if (!coupon) {
         return next(
