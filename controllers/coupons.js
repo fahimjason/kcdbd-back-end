@@ -7,7 +7,7 @@ const { couponValidation } = require('../utils/coupon-validation');
 
 // @desc      Get coupons
 // @route     GET /api/v1/coupons
-// @access    Public
+// @access    Private
 exports.getCoupons = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedResults);
 });
@@ -16,7 +16,14 @@ exports.getCoupons = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/coupons/:id
 // @access    Public
 exports.getCoupon = asyncHandler(async (req, res, next) => {
-    const coupon = await Coupon.findById(req.params.id);
+    const coupon = await Coupon.findById(req.params.id)
+    .populate(
+        {
+            path: 'products',
+            select: '_id, title'
+        },        
+    )
+    .populate('orders');
 
     if (!coupon) {
         return next(
@@ -63,14 +70,14 @@ exports.updateCoupon = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`User ${req.user.id} is not authorized to update coupon ${course._id}`, 401));
     }
 
-    ticket = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
+    coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
 
     res.status(200).json({
         success: true,
-        data: ticket
+        data: coupon
     });
 });
 
@@ -92,7 +99,7 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete course ${course._id}`, 401));
     }
 
-    await Coupon.remove();
+    await coupon.remove();
 
     res.status(200).json({
         success: true,
@@ -101,17 +108,19 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Apply coupon
-// @route     GET /api/v1/coupons/apply-coupon/:coupon
+// @route     GET /api/v1/coupons/apply/:coupon/:productId
 // @access    Public
 exports.applyCoupon = asyncHandler(async (req, res, next) => {
     const coupon = await couponValidation(req.params.coupon, req.params.productId, next);
     
-    res.status(200).json({
-        success: true,
-        data: {
-            code: coupon.code,
-            discountPercentage: coupon.discountPercentage,
-            isAvailable: coupon.isAvailable
-        }
-    });
+    if(coupon) {
+        res.status(200).json({
+            success: true,
+            data: {
+                code: coupon.code,
+                discountPercentage: coupon.discountPercentage,
+                isAvailable: coupon.isAvailable
+            }
+        });
+    }
 });

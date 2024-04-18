@@ -10,7 +10,7 @@ const { checkTimeExpiration } = require('../utils/time');
 const sendEmail = require('../utils/sendEmail');
 const generateInvoice = require('../utils/invoice');
 const { formatDateAsDhaka } = require('../utils/time');
-const { uploadInS3, uploadToS3 } = require('../utils/s3');
+const { uploadToS3 } = require('../utils/s3');
 const { getContentType } = require('../utils/file-upload');
 
 // @desc      Get orders
