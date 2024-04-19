@@ -223,18 +223,15 @@ OrderSchema.pre('save', async function(next) {
         for (const item of order.orderItems) {
             const ticket = await this.model('Ticket').findById(item.ticket);
 
-            // Increment ticket booking count
+            // Check ticket booking count
             if(ticket.bookCount + item.quantity > ticket.limit) {
                 return next(
                     new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
                 ); 
             } 
 
-            // Increment coupon using count
-            if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
-                coupon.usageCount += item.quantity;
-                coupon.save();
-            } else {
+            // Check coupon using count
+            if(coupon && coupon.usageCount + item.quantity > coupon.limit) {
                 return next(
                     coupon && new ErrorResponse(`${coupon.code} coupon is not available`, 400)
                 ); 
