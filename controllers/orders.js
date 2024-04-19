@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
+const Coupon = require('../models/Coupon');
 const { couponValidation } = require('../utils/coupon-validation');
 const { checkTimeExpiration } = require('../utils/time');
 const sendEmail = require('../utils/sendEmail');
@@ -141,10 +142,12 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
         // user: req.user.id,
     });
 
-    res.status(200).json({
-        success: true,
-        data: order
-    });
+    if((coupon && couponId) || !req.query.coupon) {
+        res.status(200).json({
+            success: true,
+            data: order
+        });
+    }
 });
 
 // @desc      Update order
@@ -212,6 +215,12 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
 
     const { _id, name, email, phone, total } = order;
 
+    let coupon; 
+
+    if(order.coupon) {
+        coupon = await Coupon.findById(order.coupon);
+    }
+
     if (order.status === 'paid') {
         return next(
             new ErrorResponse(`The order with the id of ${req.params.orderId} is already paid successfully.`, 400),
@@ -222,6 +231,23 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         return next(
             new ErrorResponse(`The order with the id of ${req.params.orderId} already processed.`, 400),
         );
+    }
+
+    for (const item of order.orderItems) {
+        const ticket = await Ticket.findById(item.ticket);
+
+        // Check ticket booking count
+        if(ticket.bookCount + item.quantity > ticket.limit) {
+            return next(
+                new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
+            ); 
+        } 
+
+        if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
+            coupon.usageCount += item.quantity;
+            await coupon.save();
+        } 
+
     }
 
     if (total > 0) {
