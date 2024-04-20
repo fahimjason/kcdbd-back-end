@@ -43,6 +43,14 @@ const ParticipantSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    displayId: {
+        type: Number,
+        default: 0
+    },
+    isAvailable: {
+        type: Boolean,
+        default: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
