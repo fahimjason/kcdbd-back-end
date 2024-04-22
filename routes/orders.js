@@ -7,7 +7,8 @@ const {
     deleteOrder,
     paymentRequest,
     updatePayment,
-    orderSummary
+    orderSummary,
+    ordersWithWorkshopTitle
 } = require('../controllers/orders');
 
 const Order = require('../models/Order');
@@ -24,6 +25,10 @@ router
 router
     .route('/summary')
     .get(protect, authorize('admin'), orderSummary);
+
+router
+    .route('/workshop/:title')
+    .get(protect, authorize('admin'), ordersWithWorkshopTitle);
 
 router
     .route('/payment-update')

@@ -142,7 +142,7 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
         // user: req.user.id,
     });
 
-    if((coupon && couponId) || !req.query.coupon) {
+    if ((coupon && couponId) || !req.query.coupon) {
         res.status(200).json({
             success: true,
             data: order
@@ -215,9 +215,9 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
 
     const { _id, name, email, phone, total } = order;
 
-    let coupon; 
+    let coupon;
 
-    if(order.coupon) {
+    if (order.coupon) {
         coupon = await Coupon.findById(order.coupon);
     }
 
@@ -237,16 +237,16 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         const ticket = await Ticket.findById(item.ticket);
 
         // Check ticket booking count
-        if(ticket.bookCount + item.quantity > ticket.limit) {
+        if (ticket.bookCount + item.quantity > ticket.limit) {
             return next(
                 new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
-            ); 
-        } 
+            );
+        }
 
-        if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
+        if (coupon && coupon.usageCount + item.quantity <= coupon.limit) {
             coupon.usageCount += item.quantity;
             await coupon.save();
-        } 
+        }
 
     }
 
@@ -268,18 +268,18 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         }
 
         try {
-        const payment = await axios.post(process.env.PAYMENT_API, paymentData);
+            const payment = await axios.post(process.env.PAYMENT_API, paymentData);
 
-        order.status = 'initiated';
-        order.payment_url = payment.data.payment_url;
-        await order.save();
+            order.status = 'initiated';
+            order.payment_url = payment.data.payment_url;
+            await order.save();
 
-        res.status(200).json({
-            success: true,
-            data: {
-                payment_url: payment.data.payment_url
-            }
-        });
+            res.status(200).json({
+                success: true,
+                data: {
+                    payment_url: payment.data.payment_url
+                }
+            });
         } catch (err) {
             return next(new ErrorResponse(err));
         }
@@ -403,7 +403,7 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
             ticket.bookCount += item.quantity;
             await ticket.save();
         }
-        
+
         const htmlEmail = `
         <!DOCTYPE html>
         <html lang="en">
@@ -534,7 +534,7 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/orders/summary
 // @access    Private/Admin
 exports.orderSummary = asyncHandler(async (req, res, next) => {
-    
+
     const orders = await Order.aggregate([
         {
             $match: { status: 'paid' } // Match only the paid orders
