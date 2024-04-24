@@ -1,5 +1,6 @@
 const axios = require('axios').default;
 const fs = require('fs');
+const { Readable } = require('stream');
 
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -13,6 +14,7 @@ const generateInvoice = require('../utils/invoice');
 const { formatDateAsDhaka } = require('../utils/time');
 const { uploadToS3 } = require('../utils/s3');
 const { getContentType } = require('../utils/file-upload');
+const { generateCSV } = require('../utils/csv');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -560,5 +562,47 @@ exports.orderSummary = asyncHandler(async (req, res, next) => {
         success: true,
         data: { ...rest }
     });
+});
+
+// @desc      Download workshop CSV
+// @route     POST /api/v1/orders/workshop/:title
+// @access    Private/Admin
+exports.ordersWithWorkshopTitle = asyncHandler(async (req, res, next) => {
+    const title = req.params.title;
+
+    try {
+        const orders = await Order.aggregate([
+            { $unwind: '$workshop' }, // Unwind the workshop array
+            { $lookup: { // Perform a left outer join with the Workshop collection
+                from: 'workshops',
+                localField: 'workshop',
+                foreignField: '_id',
+                as: 'workshopDetails'
+            }},
+            { $match: { 
+                'workshopDetails.title': title, 
+                status: 'paid' 
+            }}, // Match documents where the workshop title matches
+            { $project: { // Project fields to include in the output
+                _id: 1,
+                name: 1,
+                email: 1,
+                phone: { number: 1 },
+                organization: 1,
+                studentId: 1,
+                tshirt: 1,
+                'workshopDetails.title': 1 // Include the workshop title
+            }}
+        ]);
+
+        const csvData = await generateCSV(orders);
+
+        res.setHeader('Content-Disposition', `attachment; filename=orders_${title.split(' ').join('_')}.csv`);
+        res.set('Content-Type', 'text/csv');
+        res.status(200).send(csvData);
+        
+    } catch (error) {
+        next(error);
+    }
 });
 
