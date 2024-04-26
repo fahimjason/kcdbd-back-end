@@ -1,5 +1,6 @@
 const axios = require('axios').default;
 const fs = require('fs');
+const { Readable } = require('stream');
 
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -13,6 +14,7 @@ const generateInvoice = require('../utils/invoice');
 const { formatDateAsDhaka } = require('../utils/time');
 const { uploadToS3 } = require('../utils/s3');
 const { getContentType } = require('../utils/file-upload');
+const { generateCSV } = require('../utils/csv');
 
 // @desc      Get orders
 // @route     GET /api/v1/orders
@@ -142,7 +144,7 @@ exports.addOrder = asyncHandler(async (req, res, next) => {
         // user: req.user.id,
     });
 
-    if((coupon && couponId) || !req.query.coupon) {
+    if ((coupon && couponId) || !req.query.coupon) {
         res.status(200).json({
             success: true,
             data: order
@@ -215,9 +217,9 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
 
     const { _id, name, email, phone, total } = order;
 
-    let coupon; 
+    let coupon;
 
-    if(order.coupon) {
+    if (order.coupon) {
         coupon = await Coupon.findById(order.coupon);
     }
 
@@ -237,16 +239,16 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         const ticket = await Ticket.findById(item.ticket);
 
         // Check ticket booking count
-        if(ticket.bookCount + item.quantity > ticket.limit) {
+        if (ticket.bookCount + item.quantity > ticket.limit) {
             return next(
                 new ErrorResponse(`${ticket.title} has not enough available quantity`, 400)
-            ); 
-        } 
+            );
+        }
 
-        if(coupon && coupon.usageCount + item.quantity <= coupon.limit) {
+        if (coupon && coupon.usageCount + item.quantity <= coupon.limit) {
             coupon.usageCount += item.quantity;
             await coupon.save();
-        } 
+        }
 
     }
 
@@ -268,18 +270,18 @@ exports.paymentRequest = asyncHandler(async (req, res, next) => {
         }
 
         try {
-        const payment = await axios.post(process.env.PAYMENT_API, paymentData);
+            const payment = await axios.post(process.env.PAYMENT_API, paymentData);
 
-        order.status = 'initiated';
-        order.payment_url = payment.data.payment_url;
-        await order.save();
+            order.status = 'initiated';
+            order.payment_url = payment.data.payment_url;
+            await order.save();
 
-        res.status(200).json({
-            success: true,
-            data: {
-                payment_url: payment.data.payment_url
-            }
-        });
+            res.status(200).json({
+                success: true,
+                data: {
+                    payment_url: payment.data.payment_url
+                }
+            });
         } catch (err) {
             return next(new ErrorResponse(err));
         }
@@ -403,7 +405,7 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
             ticket.bookCount += item.quantity;
             await ticket.save();
         }
-        
+
         const htmlEmail = `
         <!DOCTYPE html>
         <html lang="en">
@@ -534,7 +536,7 @@ exports.updatePayment = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/orders/summary
 // @access    Private/Admin
 exports.orderSummary = asyncHandler(async (req, res, next) => {
-    
+
     const orders = await Order.aggregate([
         {
             $match: { status: 'paid' } // Match only the paid orders
@@ -560,5 +562,47 @@ exports.orderSummary = asyncHandler(async (req, res, next) => {
         success: true,
         data: { ...rest }
     });
+});
+
+// @desc      Download workshop CSV
+// @route     POST /api/v1/orders/workshop/:title
+// @access    Private/Admin
+exports.ordersWithWorkshopTitle = asyncHandler(async (req, res, next) => {
+    const title = req.params.title;
+
+    try {
+        const orders = await Order.aggregate([
+            { $unwind: '$workshop' }, // Unwind the workshop array
+            { $lookup: { // Perform a left outer join with the Workshop collection
+                from: 'workshops',
+                localField: 'workshop',
+                foreignField: '_id',
+                as: 'workshopDetails'
+            }},
+            { $match: { 
+                'workshopDetails.title': title, 
+                status: 'paid' 
+            }}, // Match documents where the workshop title matches
+            { $project: { // Project fields to include in the output
+                _id: 1,
+                name: 1,
+                email: 1,
+                phone: { number: 1 },
+                organization: 1,
+                studentId: 1,
+                tshirt: 1,
+                'workshopDetails.title': 1 // Include the workshop title
+            }}
+        ]);
+
+        const csvData = await generateCSV(orders);
+
+        res.setHeader('Content-Disposition', `attachment; filename=orders_${title.split(' ').join('_')}.csv`);
+        res.set('Content-Type', 'text/csv');
+        res.status(200).send(csvData);
+        
+    } catch (error) {
+        next(error);
+    }
 });
 

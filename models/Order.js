@@ -164,11 +164,6 @@ OrderSchema.pre('save', async function(next) {
 
         let morningCount = 0;
         let afternoonCount = 0;
-        let coupon;
-
-        if(order.coupon) {
-            coupon = await this.model('Coupon').findById(order.coupon);
-        }
 
         for (const workshopId of order.workshop) {
             const workshop = await this.model('Workshop').findById(workshopId);
@@ -178,7 +173,7 @@ OrderSchema.pre('save', async function(next) {
             if (ordersCount >= workshop.limit) {
                 workshop.availability = false;
                 await workshop.save();
-                return next(new ErrorResponse(`${workshop.title} workshop limit reached out. Please choose another one.`, 400));
+                return next(new ErrorResponse(`${workshop.title} workshop limit reached out. Please choose another one or go ahead with presentation-deck.`, 400));
             }
 
             // Increment counts based on session time
