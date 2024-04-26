@@ -86,8 +86,20 @@ app.use(limiter);
 // Prevent http param pollution
 app.use(hpp());
 
+const whitelist = ['https://kcddhaka.org', 'https://www.kcddhaka.org'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS(Error)'))
+    }
+  }
+}
+
 // Enable CORS
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
