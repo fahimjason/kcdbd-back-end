@@ -13,6 +13,7 @@ async function generateCSV(orders) {
             { id: 'organization', title: 'Organization' },
             { id: 'studentId', title: 'Designation/Student ID' },
             { id: 'tshirt', title: 'T-Shirt Size'},
+            { id: 'track', title: 'Track'},
             { id: 'workshopDetails.0.title', title: 'Workshop Title' } // Access title from populated workshop
         ]
     });
@@ -25,7 +26,8 @@ async function generateCSV(orders) {
         organization: order.organization,
         studentId: order.studentId,
         tshirt: order.tshirt,
-        'workshopDetails.0.title': order.workshopDetails[0].title
+        track: order.track,
+        'workshopDetails.0.title': order.workshopDetails?.[0]?.title ?? ''
     }));
 
     // Write the CSV records to a string buffer

@@ -567,37 +567,50 @@ exports.orderSummary = asyncHandler(async (req, res, next) => {
 // @desc      Download workshop CSV
 // @route     POST /api/v1/orders/workshop/:title
 // @access    Private/Admin
-exports.ordersWithWorkshopTitle = asyncHandler(async (req, res, next) => {
-    const title = req.params.title;
+exports.ordersCSV = asyncHandler(async (req, res, next) => {
 
     try {
-        const orders = await Order.aggregate([
-            { $unwind: '$workshop' }, // Unwind the workshop array
-            { $lookup: { // Perform a left outer join with the Workshop collection
-                from: 'workshops',
-                localField: 'workshop',
-                foreignField: '_id',
-                as: 'workshopDetails'
-            }},
-            { $match: { 
-                'workshopDetails.title': title, 
-                status: 'paid' 
-            }}, // Match documents where the workshop title matches
-            { $project: { // Project fields to include in the output
-                _id: 1,
-                name: 1,
-                email: 1,
-                phone: { number: 1 },
-                organization: 1,
-                studentId: 1,
-                tshirt: 1,
-                'workshopDetails.title': 1 // Include the workshop title
-            }}
-        ]);
+
+        let orders = await Order.find({});
+
+        if (req.query.status) {
+            orders = await Order.find({status: req.query.status});
+        }
+
+        if (req.query.track === 'workshop' && req.query.title) {
+            orders = await Order.aggregate([
+                { $unwind: '$workshop' }, // Unwind the workshop array
+                { $lookup: { // Perform a left outer join with the Workshop collection
+                    from: 'workshops',
+                    localField: 'workshop',
+                    foreignField: '_id',
+                    as: 'workshopDetails'
+                }},
+                { $match: { 
+                    'workshopDetails.title': req.query.title, 
+                    status: 'paid' 
+                }}, // Match documents where the workshop title matches
+                { $project: { // Project fields to include in the output
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    phone: { number: 1 },
+                    organization: 1,
+                    studentId: 1,
+                    tshirt: 1,
+                    'workshopDetails.title': 1 // Include the workshop title
+                }}
+            ]);
+        }
+
+
+        if (req.query.track && !req.query.title) {
+            orders = await Order.find({track: req.query.track, status: 'paid'});
+        }
 
         const csvData = await generateCSV(orders);
 
-        res.setHeader('Content-Disposition', `attachment; filename=orders_${title.split(' ').join('_')}.csv`);
+        res.setHeader('Content-Disposition', `attachment; filename=orders.csv`);
         res.set('Content-Type', 'text/csv');
         res.status(200).send(csvData);
         
