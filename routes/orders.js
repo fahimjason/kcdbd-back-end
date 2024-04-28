@@ -8,7 +8,8 @@ const {
     paymentRequest,
     updatePayment,
     orderSummary,
-    ordersCSV
+    ordersCSV,
+    manualSupport
 } = require('../controllers/orders');
 
 const Order = require('../models/Order');
@@ -25,6 +26,10 @@ router
 router
     .route('/summary')
     .get(protect, authorize('admin'), orderSummary);
+
+router
+    .route('/manual-support/:orderId')
+    .get(protect, authorize('admin'), manualSupport);
     
 router
     .route('/csv')
