@@ -29,7 +29,7 @@ const ParticipantSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['organizer', 'sponsor', 'speaker', 'key-note-speaker', 'event-speaker', 'volunteer', 'fellow-ship', 'panel-speaker'],
+        enum: ['organizer', 'sponsor', 'speaker', 'key-note-speaker', 'event-speaker', 'volunteer', 'fellow-ship', 'panel-speaker', 'workshop-speaker'],
         required: true
     },
     speaking_topic: String,
