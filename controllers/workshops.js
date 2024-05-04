@@ -13,7 +13,7 @@ exports.getWorkshops = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/workshops/:id
 // @access    Public
 exports.getWorkshop = asyncHandler(async (req, res, next) => {
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findById(req.params.id).populate('speakers');
 
     if (!workshop) {
         return next(
