@@ -567,37 +567,50 @@ exports.orderSummary = asyncHandler(async (req, res, next) => {
 // @desc      Download workshop CSV
 // @route     POST /api/v1/orders/workshop/:title
 // @access    Private/Admin
-exports.ordersWithWorkshopTitle = asyncHandler(async (req, res, next) => {
-    const title = req.params.title;
+exports.ordersCSV = asyncHandler(async (req, res, next) => {
 
     try {
-        const orders = await Order.aggregate([
-            { $unwind: '$workshop' }, // Unwind the workshop array
-            { $lookup: { // Perform a left outer join with the Workshop collection
-                from: 'workshops',
-                localField: 'workshop',
-                foreignField: '_id',
-                as: 'workshopDetails'
-            }},
-            { $match: { 
-                'workshopDetails.title': title, 
-                status: 'paid' 
-            }}, // Match documents where the workshop title matches
-            { $project: { // Project fields to include in the output
-                _id: 1,
-                name: 1,
-                email: 1,
-                phone: { number: 1 },
-                organization: 1,
-                studentId: 1,
-                tshirt: 1,
-                'workshopDetails.title': 1 // Include the workshop title
-            }}
-        ]);
+
+        let orders = await Order.find({});
+
+        if (req.query.status) {
+            orders = await Order.find({status: req.query.status});
+        }
+
+        if (req.query.track === 'workshop' && req.query.title) {
+            orders = await Order.aggregate([
+                { $unwind: '$workshop' }, // Unwind the workshop array
+                { $lookup: { // Perform a left outer join with the Workshop collection
+                    from: 'workshops',
+                    localField: 'workshop',
+                    foreignField: '_id',
+                    as: 'workshopDetails'
+                }},
+                { $match: { 
+                    'workshopDetails.title': req.query.title, 
+                    status: 'paid' 
+                }}, // Match documents where the workshop title matches
+                { $project: { // Project fields to include in the output
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    phone: { number: 1 },
+                    organization: 1,
+                    studentId: 1,
+                    tshirt: 1,
+                    'workshopDetails.title': 1 // Include the workshop title
+                }}
+            ]);
+        }
+
+
+        if (req.query.track && !req.query.title) {
+            orders = await Order.find({track: req.query.track, status: 'paid'});
+        }
 
         const csvData = await generateCSV(orders);
 
-        res.setHeader('Content-Disposition', `attachment; filename=orders_${title.split(' ').join('_')}.csv`);
+        res.setHeader('Content-Disposition', `attachment; filename=orders.csv`);
         res.set('Content-Type', 'text/csv');
         res.status(200).send(csvData);
         
@@ -606,3 +619,108 @@ exports.ordersWithWorkshopTitle = asyncHandler(async (req, res, next) => {
     }
 });
 
+// @desc      Manual Support
+// @route     POST /api/v1/orders/manual-support/:orderId
+// @access    Public
+exports.manualSupport = asyncHandler(async (req, res, next) => {
+    const orderId = req.params.orderId;
+
+    const order = await Order.findById(orderId);
+    order.status = 'paid';
+    await order.save();
+
+    for (const item of order.orderItems) {
+        const ticket = await Ticket.findById(item.ticket);
+        ticket.bookCount += item.quantity;
+        await ticket.save();
+    }
+
+    const htmlEmail = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="5;url=${process.env.REDIRECT_URL}">
+    <title>Payment Response</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+    <div class="container">
+        <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="text-center">Payment Response</h4>
+            </div>
+            <div class="card-body">
+                <p>Dear ${order.name},</p>
+                <p>Congratulations! Your payment for KCD Dhaka 2024 has been successfully processed. Thank you for your registration. An event confirmation order invoice has been attached to your email. Your <b>Order ID(${order._id})</b> will serve as your unique identifier. <b>Please keep this soft copy of the Order ID for reference on the event day.</b></p>
+                <p>If you have any questions or concerns regarding your payment, please feel free to contact us.</p>
+                <p>Best regards,<br>KCD Dhaka 2024 Organizing Team</p>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </body>
+    </html>
+    `;
+
+    try {
+        const orderDetails = {
+            name: order.name,
+            mobile: order.phone.number,
+            orderId: order._id,
+            date: formatDateAsDhaka(),
+            items: order.orderItems,
+            subtotal: order.subtotal,
+            vat: order.vat || 0,
+            tax: order.tax,
+            discount: order.discount,
+            total: order.total
+        };
+
+        const invoicePath = `${process.env.FILE_UPLOAD_PATH}/invoices`
+        const invoice = `invoice_${order._id}.pdf`;
+
+        // Generate PDF invoice
+        const generatedInvoicePath = await generateInvoice(orderDetails, `${invoicePath}/${invoice}`);
+
+        // Read the generated PDF file
+        const pdfAttachment = fs.readFileSync(generatedInvoicePath);
+
+        // Send email with attachment
+        const options = {
+            email: order.email,
+            subject: 'KCD Payment Information',
+            htmlEmail,
+            invoice
+        }
+
+        await sendEmail(options, pdfAttachment);
+
+        const contentType = getContentType(generatedInvoicePath);
+
+        // Upload to S3
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: `invoices/${invoice}`,
+            Body: pdfAttachment,
+            ContentType: contentType,
+        };
+
+        const s3UploadData = await uploadToS3(params, next);
+
+        order.invoice = s3UploadData.key;
+        await order.save();
+
+        fs.unlinkSync(generatedInvoicePath);
+
+        res.send('Invoice sent');
+    } catch (err) {
+        console.log(err);
+
+        return next(new ErrorResponse('Email could not be sent', 500));
+    }
+});
