@@ -7,6 +7,7 @@ const asyncHandler = require('../middleware/async');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
 const Coupon = require('../models/Coupon');
+const Raffle = require('../models/Raffle');
 const { couponValidation } = require('../utils/coupon-validation');
 const { checkTimeExpiration } = require('../utils/time');
 const sendEmail = require('../utils/sendEmail');
@@ -722,5 +723,30 @@ exports.manualSupport = asyncHandler(async (req, res, next) => {
         console.log(err);
 
         return next(new ErrorResponse('Email could not be sent', 500));
+    }
+});
+
+// @desc      Raffle Draw
+// @route     POST /api/v1/orders/raffle-draw
+// @access    Public
+exports.raffleDraw = asyncHandler(async (req, res, next) => {
+    try {
+        // Get the total count of orders in the collection
+        const totalCount = await Raffle.countDocuments();
+
+        // Generate a random index within the range of total orders
+        const randomIndex = Math.floor(Math.random() * totalCount);
+
+        // Find one order using the random index as skip value
+        const randomOrder = await Order.findOne().skip(randomIndex).select('_id name email designation organization');
+
+        res.status(200).json({
+            success: true,
+            data: randomOrder
+        });
+    } catch (err) {
+        console.log(err);
+
+        return next(new ErrorResponse('Could not select the winner, please try again later', 500));
     }
 });
