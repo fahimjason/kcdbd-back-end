@@ -9,7 +9,8 @@ const {
     updatePayment,
     orderSummary,
     ordersCSV,
-    manualSupport
+    manualSupport,
+    raffleDraw
 } = require('../controllers/orders');
 
 const Order = require('../models/Order');
@@ -42,6 +43,10 @@ router
 router
     .route('/payment/:orderId')
     .get(paymentRequest);
+
+router
+    .route('/raffle-draw')
+    .get(protect, authorize('admin'), raffleDraw);
 
 router
     .route('/:id')
