@@ -738,7 +738,7 @@ exports.raffleDraw = asyncHandler(async (req, res, next) => {
         const randomIndex = Math.floor(Math.random() * totalCount);
 
         // Find one order using the random index as skip value
-        const randomOrder = await Order.findOne().skip(randomIndex).select('_id name email designation organization');
+        const randomOrder = await Raffle.findOne().skip(randomIndex).select('_id name email designation organization');
 
         res.status(200).json({
             success: true,
